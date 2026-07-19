@@ -7,17 +7,13 @@ import { Section } from "@/components/section";
 import { TestimonialCard } from "@/components/testimonials/testimonial-card";
 import { ButtonLink } from "@/components/ui/button";
 import { brand } from "@/lib/brand";
+import { articles as sampleArticles, courses as sampleCourses, instructors as sampleInstructors, testimonials as sampleTestimonials } from "@backend/lib/sample-data";
 import { prisma } from "@backend/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
-  const [courses, classes, articles, instructors, testimonials, stats] = await Promise.all([
-    prisma.course.findMany({ where: { status: "PUBLISHED", featured: true }, take: 4, include: { category: true, instructor: true } }),
-    prisma.classSchedule.findMany({ where: { status: "OPEN_FOR_ENROLLMENT" }, take: 3, include: { course: true, instructor: true }, orderBy: { startDate: "asc" } }),
-    prisma.article.findMany({ where: { status: "PUBLISHED", featured: true }, take: 4, include: { category: true, author: true }, orderBy: { publishedAt: "desc" } }),
-    prisma.instructorProfile.findMany({ where: { featured: true }, take: 4 }),
-    prisma.testimonial.findMany({ where: { approved: true }, take: 3, include: { course: true } }),
-    Promise.all([prisma.user.count({ where: { role: "STUDENT" } }), prisma.course.count(), prisma.article.count(), prisma.enrollment.count()]),
-  ]);
+  const { courses, classes, articles, instructors, testimonials, stats } = await getHomeData();
 
   return (
     <main className="bg-slate-950 text-white">
@@ -108,4 +104,61 @@ export default async function HomePage() {
       </Section>
     </main>
   );
+}
+
+async function getHomeData() {
+  try {
+    const [courses, classes, articles, instructors, testimonials, stats] = await Promise.all([
+      prisma.course.findMany({ where: { status: "PUBLISHED", featured: true }, take: 4, include: { category: true, instructor: true } }),
+      prisma.classSchedule.findMany({ where: { status: "OPEN_FOR_ENROLLMENT" }, take: 3, include: { course: true, instructor: true }, orderBy: { startDate: "asc" } }),
+      prisma.article.findMany({ where: { status: "PUBLISHED", featured: true }, take: 4, include: { category: true, author: true }, orderBy: { publishedAt: "desc" } }),
+      prisma.instructorProfile.findMany({ where: { featured: true }, take: 4 }),
+      prisma.testimonial.findMany({ where: { approved: true }, take: 3, include: { course: true } }),
+      Promise.all([prisma.user.count({ where: { role: "STUDENT" } }), prisma.course.count(), prisma.article.count(), prisma.enrollment.count()]),
+    ]);
+    return { courses, classes, articles, instructors, testimonials, stats };
+  } catch {
+    return {
+      courses: sampleCourses.slice(0, 4).map((course) => ({
+        ...course,
+        id: course.slug,
+        category: { name: course.category },
+        instructor: { fullName: course.instructor },
+      })),
+      classes: sampleCourses.slice(0, 3).map((course, index) => ({
+        id: `demo-class-${index + 1}`,
+        title: `${course.title} - Demo Batch`,
+        startDate: new Date(Date.now() + (index + 5) * 86400000),
+        endDate: new Date(Date.now() + (index + 40) * 86400000),
+        daysOfWeek: index % 2 === 0 ? ["Sat", "Sun"] : ["Mon", "Wed", "Fri"],
+        startTime: index % 2 === 0 ? "09:00" : "19:00",
+        endTime: index % 2 === 0 ? "11:00" : "21:00",
+        deliveryType: course.deliveryType,
+        location: "Yangon / Online",
+        meetingLink: null,
+        maxStudents: 25,
+        currentEnrolled: index + 4,
+        price: course.discountPrice ?? course.price,
+        status: "OPEN_FOR_ENROLLMENT",
+        course: { title: course.title, slug: course.slug },
+        instructor: { fullName: course.instructor },
+      })),
+      articles: sampleArticles.slice(0, 4).map((article) => ({
+        ...article,
+        id: article.slug,
+        category: { name: article.categorySlug.replaceAll("-", " ") },
+        author: { name: "21CT" },
+      })),
+      instructors: sampleInstructors.slice(0, 4).map((instructor) => ({
+        ...instructor,
+        id: instructor.slug,
+      })),
+      testimonials: sampleTestimonials.slice(0, 3).map((item) => ({
+        ...item,
+        id: item.studentName + item.body,
+        course: { title: "21CT Course" },
+      })),
+      stats: [120, 8, 12, 42],
+    };
+  }
 }

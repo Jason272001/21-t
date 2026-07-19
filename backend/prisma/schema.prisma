@@ -1,0 +1,437 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  VISITOR
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum DeliveryType {
+  ONLINE_LIVE
+  IN_PERSON
+  HYBRID
+  SELF_PACED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ClassStatus {
+  UPCOMING
+  OPEN_FOR_ENROLLMENT
+  FULL
+  ENROLLMENT_CLOSED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum EnrollmentStatus {
+  PENDING
+  AWAITING_PAYMENT
+  CONFIRMED
+  WAITLISTED
+  CANCELLED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  FREE
+  STRIPE
+  BANK_TRANSFER
+  CASH
+  MANUAL
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum ContactMethod {
+  EMAIL
+  PHONE
+  MESSENGER
+  VIBER
+}
+
+enum InquiryType {
+  GENERAL_QUESTION
+  COURSE_QUESTION
+  ENROLLMENT_HELP
+  PAYMENT_HELP
+  TECHNICAL_SUPPORT
+  PARTNERSHIP
+  INSTRUCTOR_APPLICATION
+}
+
+model User {
+  id              String             @id @default(cuid())
+  name            String?
+  email           String             @unique
+  emailVerified   DateTime?
+  image           String?
+  passwordHash    String?
+  role            Role               @default(STUDENT)
+  accounts        Account[]
+  sessions        Session[]
+  studentProfile  StudentProfile?
+  instructorProfile InstructorProfile?
+  articles        Article[]          @relation("ArticleAuthor")
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([role])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model StudentProfile {
+  id              String       @id @default(cuid())
+  userId          String       @unique
+  phone           String?
+  dateOfBirth     DateTime?
+  educationLevel  String?
+  occupation      String?
+  city            String?
+  country         String?      @default("Myanmar")
+  preferredContact ContactMethod @default(EMAIL)
+  emergencyName   String?
+  emergencyPhone  String?
+  learningGoal    String?
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollments     Enrollment[]
+  attendances     Attendance[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model InstructorProfile {
+  id            String          @id @default(cuid())
+  userId        String          @unique
+  fullName      String
+  slug          String          @unique
+  jobTitle      String
+  biography     String          @db.Text
+  profileImage  String?
+  expertise     String[]
+  certifications String[]
+  experience    String
+  linkedIn      String?
+  featured      Boolean         @default(false)
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courses       Course[]
+  classes       ClassSchedule[]
+  announcements ClassAnnouncement[]
+  materials     CourseMaterial[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model ArticleCategory {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  articles    Article[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model ArticleTag {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  articles  Article[] @relation("ArticleTags")
+}
+
+model Article {
+  id             String          @id @default(cuid())
+  title          String
+  slug           String          @unique
+  excerpt        String          @db.Text
+  content        String          @db.Text
+  featuredImage  String?
+  categoryId     String
+  authorId       String
+  publishedAt    DateTime?
+  readingTime    Int
+  status         ArticleStatus   @default(DRAFT)
+  featured       Boolean         @default(false)
+  seoTitle       String?
+  seoDescription String?
+  ogImage        String?
+  views          Int             @default(0)
+  category       ArticleCategory @relation(fields: [categoryId], references: [id])
+  tags           ArticleTag[]    @relation("ArticleTags")
+  author         User            @relation("ArticleAuthor", fields: [authorId], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([status, featured, publishedAt])
+  @@index([categoryId])
+}
+
+model CourseCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  courses     Course[]
+}
+
+model Course {
+  id             String              @id @default(cuid())
+  title          String
+  slug           String              @unique
+  shortDescription String            @db.Text
+  fullDescription  String            @db.Text
+  featuredImage String?
+  categoryId    String
+  level         CourseLevel
+  duration      String
+  deliveryType  DeliveryType
+  instructorId  String
+  price         Int                  @default(0)
+  discountPrice Int?
+  status        CourseStatus         @default(DRAFT)
+  certificate   Boolean              @default(true)
+  outcomes      String[]
+  requirements  String[]
+  targetAudience String[]
+  featured      Boolean              @default(false)
+  category      CourseCategory       @relation(fields: [categoryId], references: [id])
+  instructor    InstructorProfile    @relation(fields: [instructorId], references: [id])
+  curriculumSections CurriculumSection[]
+  classSchedules ClassSchedule[]
+  materials     CourseMaterial[]
+  testimonials  Testimonial[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([status, featured, categoryId])
+}
+
+model CurriculumSection {
+  id        String             @id @default(cuid())
+  courseId  String
+  title     String
+  sortOrder Int
+  course    Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons   CurriculumLesson[]
+}
+
+model CurriculumLesson {
+  id        String            @id @default(cuid())
+  sectionId String
+  title     String
+  duration  String?
+  isPreview Boolean           @default(false)
+  sortOrder Int
+  section   CurriculumSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+}
+
+model ClassSchedule {
+  id                String              @id @default(cuid())
+  title             String
+  courseId          String
+  instructorId      String
+  startDate         DateTime
+  endDate           DateTime
+  daysOfWeek        String[]
+  startTime         String
+  endTime           String
+  timezone          String              @default("Asia/Yangon")
+  deliveryType      DeliveryType
+  location          String?
+  meetingLink       String?
+  maxStudents       Int
+  currentEnrolled   Int                 @default(0)
+  enrollmentDeadline DateTime
+  price             Int                 @default(0)
+  status            ClassStatus         @default(UPCOMING)
+  notes             String?             @db.Text
+  course            Course              @relation(fields: [courseId], references: [id])
+  instructor        InstructorProfile   @relation(fields: [instructorId], references: [id])
+  enrollments       Enrollment[]
+  announcements     ClassAnnouncement[]
+  attendances       Attendance[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([status, startDate])
+  @@index([courseId, instructorId])
+}
+
+model Enrollment {
+  id                  String           @id @default(cuid())
+  confirmationNumber  String           @unique
+  studentProfileId    String
+  classScheduleId     String
+  status              EnrollmentStatus @default(PENDING)
+  priorExperience     String?          @db.Text
+  learningGoal        String?          @db.Text
+  heardFrom           String?
+  canCancelUntil      DateTime?
+  studentProfile      StudentProfile   @relation(fields: [studentProfileId], references: [id])
+  classSchedule       ClassSchedule    @relation(fields: [classScheduleId], references: [id])
+  payments            Payment[]
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  @@index([status, classScheduleId])
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  enrollmentId  String
+  amount        Int
+  currency      String        @default("MMK")
+  method        PaymentMethod @default(FREE)
+  status        PaymentStatus @default(UNPAID)
+  transactionId String?
+  paidDate      DateTime?
+  receipt       String?
+  notes         String?       @db.Text
+  enrollment    Enrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model CourseMaterial {
+  id            String             @id @default(cuid())
+  courseId      String
+  instructorId  String
+  title         String
+  fileUrl       String
+  fileType      String
+  isPublic      Boolean            @default(false)
+  course        Course             @relation(fields: [courseId], references: [id])
+  instructor    InstructorProfile  @relation(fields: [instructorId], references: [id])
+  createdAt     DateTime           @default(now())
+}
+
+model ClassAnnouncement {
+  id              String            @id @default(cuid())
+  classScheduleId String
+  instructorId    String
+  title           String
+  body            String            @db.Text
+  classSchedule   ClassSchedule     @relation(fields: [classScheduleId], references: [id], onDelete: Cascade)
+  instructor      InstructorProfile @relation(fields: [instructorId], references: [id])
+  createdAt       DateTime          @default(now())
+}
+
+model Attendance {
+  id              String          @id @default(cuid())
+  classScheduleId String
+  studentProfileId String
+  date            DateTime
+  present         Boolean         @default(false)
+  notes           String?
+  classSchedule   ClassSchedule   @relation(fields: [classScheduleId], references: [id], onDelete: Cascade)
+  studentProfile  StudentProfile  @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([classScheduleId, studentProfileId, date])
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  studentName String
+  photo       String?
+  courseId    String?
+  rating      Int
+  body        String   @db.Text
+  approved    Boolean  @default(false)
+  date        DateTime @default(now())
+  course      Course?  @relation(fields: [courseId], references: [id])
+}
+
+model ContactSubmission {
+  id          String      @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  subject     String
+  message     String      @db.Text
+  inquiryType InquiryType
+  courseInterest String?
+  contactPreference ContactMethod @default(EMAIL)
+  status      String      @default("new")
+  createdAt   DateTime    @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  source    String?
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

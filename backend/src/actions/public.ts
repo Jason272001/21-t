@@ -1,6 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import type { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "../lib/prisma";
@@ -114,7 +115,7 @@ export async function enrollmentAction(_: ActionState, formData: FormData): Prom
     },
   });
 
-  const enrollment = await prisma.$transaction(async (tx) => {
+  const enrollment = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const fresh = await tx.classSchedule.findUniqueOrThrow({ where: { id: klass.id } });
     if (fresh.currentEnrolled >= fresh.maxStudents) throw new Error("This class is full.");
     await tx.classSchedule.update({

@@ -12,6 +12,12 @@
     "format": "prettier --write .",
     "prisma:generate": "prisma generate --schema backend/prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema backend/prisma/schema.prisma",
+    "db:setup": "node backend/scripts/local-db.mjs setup",
+    "db:start": "node backend/scripts/local-db.mjs start",
+    "db:stop": "node backend/scripts/local-db.mjs stop",
+    "db:deploy": "prisma migrate deploy --schema backend/prisma/schema.prisma",
+    "admin:create": "tsx --env-file=.env backend/scripts/create-admin.ts",
+    "test": "tsx --env-file=.env --test backend/tests/*.test.ts",
     "postinstall": "prisma generate --schema backend/prisma/schema.prisma"
   },
   "dependencies": {

@@ -10,6 +10,7 @@ type ClassCardProps = {
     title: string;
     startDate: Date;
     endDate: Date;
+    enrollmentDeadline?: Date;
     daysOfWeek: string[];
     startTime: string;
     endTime: string;
@@ -40,28 +41,34 @@ export async function ClassCard({ item }: ClassCardProps) {
       </div>
       <h3 className="mt-4 text-xl font-black text-foreground">{item.title}</h3>
       <p className="mt-2 text-sm text-muted">
-        {item.course?.title} • {item.instructor?.fullName}
+        {item.course?.title} â€¢ {item.instructor?.fullName}
       </p>
       <div className="mt-5 grid gap-2 text-sm text-muted">
         <span className="inline-flex items-center gap-2">
           <CalendarDays className="h-4 w-4 text-accent" />{" "}
-          {item.startDate.toLocaleDateString(locale)} - {item.endDate.toLocaleDateString(locale)} •{" "}
-          {item.daysOfWeek.join(", ")} • {item.startTime}-{item.endTime}
+          {item.startDate.toLocaleDateString(locale, { timeZone: "Asia/Yangon" })} -{" "}
+          {item.endDate.toLocaleDateString(locale, { timeZone: "Asia/Yangon" })} â€¢{" "}
+          {item.daysOfWeek.join(", ")} â€¢ {item.startTime}-{item.endTime}
         </span>
         <span className="inline-flex items-center gap-2">
           <MapPin className="h-4 w-4 text-accent" /> {item.deliveryType.replaceAll("_", " ")}{" "}
-          {item.location ? `• ${item.location}` : ""}
+          {item.location ? `â€¢ ${item.location}` : ""}
         </span>
         <span className="inline-flex items-center gap-2">
           <Users className="h-4 w-4 text-accent" /> {seats} {common.seats}
         </span>
       </div>
-      <Link
-        href={`/enrollment?classId=${item.id}`}
-        className="mt-5 inline-flex rounded-lg bg-orange-400 px-4 py-2 text-sm font-bold text-slate-950"
-      >
-        {nav.enroll}
-      </Link>
+      {item.status === "OPEN_FOR_ENROLLMENT" &&
+      seats > 0 &&
+      item.startDate > new Date() &&
+      (!item.enrollmentDeadline || item.enrollmentDeadline > new Date()) ? (
+        <Link
+          href={`/enrollment?classId=${item.id}`}
+          className="mt-5 inline-flex rounded-lg bg-orange-400 px-4 py-2 text-sm font-bold text-slate-950"
+        >
+          {nav.enroll}
+        </Link>
+      ) : null}
     </article>
   );
 }

@@ -3,11 +3,15 @@ export function TextField({
   name,
   type = "text",
   required = false,
+  defaultValue,
+  readOnly = false,
 }: {
   label: string;
   name: string;
   type?: string;
   required?: boolean;
+  defaultValue?: string;
+  readOnly?: boolean;
 }) {
   return (
     <label className="grid gap-2 text-sm font-semibold text-foreground">
@@ -16,13 +20,23 @@ export function TextField({
         name={name}
         type={type}
         required={required}
+        defaultValue={defaultValue}
+        readOnly={readOnly}
         className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground outline-none focus:border-accent"
       />
     </label>
   );
 }
 
-export function TextAreaField({ label, name, required = false }: { label: string; name: string; required?: boolean }) {
+export function TextAreaField({
+  label,
+  name,
+  required = false,
+}: {
+  label: string;
+  name: string;
+  required?: boolean;
+}) {
   return (
     <label className="grid gap-2 text-sm font-semibold text-foreground">
       {label}
@@ -36,7 +50,17 @@ export function TextAreaField({ label, name, required = false }: { label: string
   );
 }
 
-export function SelectField({ label, name, options, required = false }: { label: string; name: string; options: string[]; required?: boolean }) {
+export function SelectField({
+  label,
+  name,
+  options,
+  required = false,
+}: {
+  label: string;
+  name: string;
+  options: string[];
+  required?: boolean;
+}) {
   return (
     <label className="grid gap-2 text-sm font-semibold text-foreground">
       {label}
@@ -47,7 +71,9 @@ export function SelectField({ label, name, options, required = false }: { label:
       >
         <option value="">Select</option>
         {options.map((option) => (
-          <option key={option} value={option}>{option.replaceAll("_", " ")}</option>
+          <option key={option} value={option}>
+            {option.replaceAll("_", " ")}
+          </option>
         ))}
       </select>
     </label>

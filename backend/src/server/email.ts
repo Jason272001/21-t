@@ -1,3 +1,10 @@
+export function escapeHtml(value: string) {
+  return value.replace(
+    /[&<>"\']/g,
+    (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "\'": "&#39;" })[char]!,
+  );
+}
+
 type EmailInput = {
   to: string;
   subject: string;
@@ -29,19 +36,19 @@ export async function sendEmail(input: EmailInput) {
 export const emailTemplates = {
   welcome: (name: string) => ({
     subject: "21CT မှ ကြိုဆိုပါတယ်",
-    html: `<p>${name} ရေ၊ 21st Century Technology မှ ကြိုဆိုပါတယ်။ မြန်မာလို IT ပညာရပ်များကို အတူတူလေ့လာကြပါစို့။</p>`,
+    html: `<p>${escapeHtml(name)} ရေ၊ 21st Century Technology မှ ကြိုဆိုပါတယ်။ မြန်မာလို IT ပညာရပ်များကို အတူတူလေ့လာကြပါစို့။</p>`,
   }),
   enrollmentReceived: (name: string, course: string) => ({
     subject: "အတန်းအပ်နှံမှု လက်ခံရရှိပါပြီ",
-    html: `<p>${name} ရေ၊ ${course} အတွက် enrollment ကို လက်ခံရရှိပါပြီ။ 21CT team မှ မကြာမီအတည်ပြုပေးပါမည်။</p>`,
+    html: `<p>${escapeHtml(name)} ရေ၊ ${escapeHtml(course)} အတွက် enrollment ကို လက်ခံရရှိပါပြီ။ 21CT team မှ မကြာမီအတည်ပြုပေးပါမည်။</p>`,
   }),
   paymentReminder: (course: string) => ({
     subject: "Payment reminder",
-    html: `<p>${course} အတွက် payment status ကို စစ်ဆေးပေးပါရန် အသိပေးအပ်ပါသည်။</p>`,
+    html: `<p>${escapeHtml(course)} အတွက် payment status ကို စစ်ဆေးပေးပါရန် အသိပေးအပ်ပါသည်။</p>`,
   }),
   classReminder: (course: string) => ({
     subject: "Class starting reminder",
-    html: `<p>${course} class စတင်ရန်နီးကပ်လာပါပြီ။ Materials နှင့် schedule ကို dashboard တွင်ကြည့်ရှုနိုင်ပါသည်။</p>`,
+    html: `<p>${escapeHtml(course)} class စတင်ရန်နီးကပ်လာပါပြီ။ Materials နှင့် schedule ကို dashboard တွင်ကြည့်ရှုနိုင်ပါသည်။</p>`,
   }),
   passwordReset: () => ({
     subject: "Password reset request",

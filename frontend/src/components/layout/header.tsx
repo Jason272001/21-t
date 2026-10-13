@@ -41,8 +41,8 @@ export function Header({ locale, theme }: { locale: Locale; theme: Theme }) {
           <LanguageSelector locale={locale} />
           <ThemeToggle theme={theme} locale={locale} />
           <div className="hidden items-center gap-2 2xl:flex">
-            <ButtonLink href="/login" variant="secondary">
-              {labels.login}
+            <ButtonLink href="/portal" variant="secondary">
+              {locale === "en" ? "My portal" : "ကျွန်ုပ်၏စာမျက်နှာ"}
             </ButtonLink>
             <ButtonLink href="/enrollment" variant="accent">
               {labels.enroll}
@@ -75,8 +75,8 @@ export function Header({ locale, theme }: { locale: Locale; theme: Theme }) {
                 {label}
               </Link>
             ))}
-            <ButtonLink href="/login" variant="secondary">
-              {labels.login}
+            <ButtonLink href="/portal" variant="secondary">
+              {locale === "en" ? "My portal" : "ကျွန်ုပ်၏စာမျက်နှာ"}
             </ButtonLink>
             <ButtonLink href="/enrollment" variant="accent">
               {labels.enroll}

@@ -39,6 +39,7 @@ enum CourseStatus {
 }
 
 enum ClassStatus {
+  DRAFT
   UPCOMING
   OPEN_FOR_ENROLLMENT
   FULL
@@ -339,6 +340,13 @@ model Enrollment {
   updatedAt           DateTime         @updatedAt
 
   @@index([status, classScheduleId])
+  @@unique([studentProfileId, classScheduleId])
+}
+
+model LoginAttempt {
+  key       String   @id
+  attempts  Int      @default(1)
+  resetAt   DateTime
 }
 
 model Payment {

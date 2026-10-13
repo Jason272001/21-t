@@ -164,7 +164,12 @@ async function getHomeData() {
         include: { category: true, instructor: true },
       }),
       prisma.classSchedule.findMany({
-        where: { status: "OPEN_FOR_ENROLLMENT" },
+        where: {
+          status: "OPEN_FOR_ENROLLMENT",
+          course: { status: "PUBLISHED" },
+          enrollmentDeadline: { gt: new Date() },
+          startDate: { gt: new Date() },
+        },
         take: 3,
         include: { course: true, instructor: true },
         orderBy: { startDate: "asc" },

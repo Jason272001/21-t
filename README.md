@@ -32,6 +32,19 @@ npm run prisma:migrate
 npm run seed
 ```
 
+## Website Language
+
+The top navigation includes an English / မြန်မာ selector on desktop and mobile.
+Burmese is the default. The selected language is stored in the `21ct-language`
+cookie for one year and is applied on navigation and reload without a database.
+Switching language keeps the current URL and updates the document's `lang` attribute.
+
+Translations for navigation, homepage interface copy, the footer, and shared card
+actions live in `frontend/src/lib/i18n.ts`. Server components read the selection
+through `getLanguage()` in `frontend/src/lib/i18n-server.ts`. Article/course content,
+testimonials, and the remaining page-specific forms currently retain their original
+language; this selector does not automatically translate authored content.
+
 Admin seed login:
 
 ```text

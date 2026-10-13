@@ -20,8 +20,8 @@ export function Logo({ className, compact = false }: { className?: string; compa
         />
       </span>
       <span className={cn("leading-tight", compact && "hidden sm:block")}>
-        <span className="block text-lg font-black tracking-wide text-white">21CT</span>
-        <span className={cn("text-xs font-semibold text-slate-300", compact ? "hidden" : "block")}>
+        <span className="block text-lg font-black tracking-wide text-foreground">21CT</span>
+        <span className={cn("text-xs font-semibold text-muted", compact ? "hidden" : "block")}>
           21st Century Technology
         </span>
       </span>

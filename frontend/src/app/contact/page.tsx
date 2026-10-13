@@ -7,7 +7,7 @@ export default function ContactPage() {
   return (
     <Section eyebrow="Contact" title="21CT ကိုဆက်သွယ်ရန်">
       <div className="grid gap-8 lg:grid-cols-[1fr_0.8fr]">
-        <div className="rounded-lg border border-white/10 bg-slate-900 p-6">
+        <div className="rounded-lg border border-line/10 bg-surface p-6">
           <ActionForm action={contactAction} submitLabel="Send message">
             <div className="grid gap-4 md:grid-cols-2">
               <TextField name="name" label="Name" required />
@@ -21,13 +21,13 @@ export default function ContactPage() {
             <TextAreaField name="message" label="Message" required />
           </ActionForm>
         </div>
-        <div className="rounded-lg border border-white/10 bg-slate-900 p-6">
+        <div className="rounded-lg border border-line/10 bg-surface p-6">
           <h2 className="text-2xl font-black">Support</h2>
-          <p className="mt-4 leading-8 text-slate-300">Course questions, enrollment help, payment support, partnerships, and instructor applications are welcome.</p>
+          <p className="mt-4 leading-8 text-muted">Course questions, enrollment help, payment support, partnerships, and instructor applications are welcome.</p>
           <dl className="mt-6 grid gap-3 text-sm">
-            <div><dt className="text-slate-400">Email</dt><dd className="font-bold text-cyan-200">support@21ct.edu.mm</dd></div>
-            <div><dt className="text-slate-400">Phone</dt><dd className="font-bold text-cyan-200">+95 9 123 456 789</dd></div>
-            <div><dt className="text-slate-400">Office</dt><dd className="font-bold text-cyan-200">Yangon, Myanmar</dd></div>
+            <div><dt className="text-subtle">Email</dt><dd className="font-bold text-accent">support@21ct.edu.mm</dd></div>
+            <div><dt className="text-subtle">Phone</dt><dd className="font-bold text-accent">+95 9 123 456 789</dd></div>
+            <div><dt className="text-subtle">Office</dt><dd className="font-bold text-accent">Yangon, Myanmar</dd></div>
           </dl>
         </div>
       </div>

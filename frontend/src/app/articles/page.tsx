@@ -23,13 +23,13 @@ export default async function ArticlesPage({ searchParams }: { searchParams: Pro
 
   return (
     <Section eyebrow="Articles" title="Burmese technology articles" body="Search, filter, and learn practical IT knowledge in Burmese.">
-      <form className="mb-8 grid gap-3 rounded-lg border border-white/10 bg-slate-900 p-4 md:grid-cols-[1fr_220px_180px_auto]">
-        <input name="q" defaultValue={params.q} placeholder="Search articles" className="min-h-11 rounded-lg bg-slate-950 px-3 text-white" />
-        <select name="category" defaultValue={params.category} className="min-h-11 rounded-lg bg-slate-950 px-3 text-white">
+      <form className="mb-8 grid gap-3 rounded-lg border border-line/10 bg-surface p-4 md:grid-cols-[1fr_220px_180px_auto]">
+        <input name="q" defaultValue={params.q} placeholder="Search articles" className="min-h-11 rounded-lg bg-page px-3 text-foreground" />
+        <select name="category" defaultValue={params.category} className="min-h-11 rounded-lg bg-page px-3 text-foreground">
           <option value="">All categories</option>
           {categories.map((category) => <option key={category.id} value={category.slug}>{category.name}</option>)}
         </select>
-        <select name="sort" defaultValue={params.sort} className="min-h-11 rounded-lg bg-slate-950 px-3 text-white">
+        <select name="sort" defaultValue={params.sort} className="min-h-11 rounded-lg bg-page px-3 text-foreground">
           <option value="latest">Latest</option>
           <option value="popular">Popular</option>
         </select>

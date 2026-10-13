@@ -5,8 +5,8 @@ import { Logo } from "@/components/ui/logo";
 
 export default function RegisterPage() {
   return (
-    <main className="bg-slate-950 px-4 py-16 text-white">
-      <section className="mx-auto max-w-md rounded-lg border border-white/10 bg-slate-900 p-6">
+    <main className="bg-page px-4 py-16 text-foreground">
+      <section className="mx-auto max-w-md rounded-lg border border-line/10 bg-surface p-6">
         <Logo />
         <h1 className="mt-8 text-3xl font-black">Student registration</h1>
         <div className="mt-6">

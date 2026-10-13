@@ -9,7 +9,7 @@ export async function Footer() {
     messages: { nav, footer },
   } = await getLanguage();
   return (
-    <footer className="border-t border-white/10 bg-slate-950 text-slate-300">
+    <footer className="border-t border-line/10 bg-page text-muted">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-6">
         <div>
           <Logo />
@@ -17,21 +17,21 @@ export async function Footer() {
           <div className="mt-5 flex gap-3">
             <a
               href={brand.facebookUrl}
-              className="rounded-lg border border-white/10 p-2"
+              className="rounded-lg border border-line/10 p-2"
               aria-label="Facebook"
             >
               <ExternalLink className="h-4 w-4" />
             </a>
             <a
               href={`mailto:${brand.supportEmail}`}
-              className="rounded-lg border border-white/10 p-2"
+              className="rounded-lg border border-line/10 p-2"
               aria-label="Email"
             >
               <Mail className="h-4 w-4" />
             </a>
             <a
               href={`tel:${brand.phone}`}
-              className="rounded-lg border border-white/10 p-2"
+              className="rounded-lg border border-line/10 p-2"
               aria-label="Phone"
             >
               <Phone className="h-4 w-4" />
@@ -66,7 +66,7 @@ export async function Footer() {
           ]}
         />
       </div>
-      <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-slate-500">
+      <div className="border-t border-line/10 px-4 py-5 text-center text-xs text-faint">
         © {new Date().getFullYear()} 21st Century Technology. {footer.copyright}
       </div>
     </footer>
@@ -76,10 +76,10 @@ export async function Footer() {
 function FooterLinks({ title, links }: { title: string; links: [string, string][] }) {
   return (
     <div>
-      <h3 className="font-bold text-white">{title}</h3>
+      <h3 className="font-bold text-foreground">{title}</h3>
       <div className="mt-4 grid gap-2 text-sm">
         {links.map(([label, href]) => (
-          <Link key={href} href={href} className="hover:text-cyan-200">
+          <Link key={href} href={href} className="hover:text-accent">
             {label}
           </Link>
         ))}

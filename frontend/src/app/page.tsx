@@ -32,17 +32,17 @@ export default async function HomePage() {
   const { courses, classes, articles, instructors, testimonials, stats } = await getHomeData();
 
   return (
-    <main className="bg-slate-950 text-white">
+    <main className="bg-page text-foreground">
       <section className="tech-grid overflow-hidden px-4 py-20 lg:px-6">
         <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-cyan-200">
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-accent">
               21st Century Technology
             </p>
             <h1 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
               {home.title}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-9 text-slate-300">{home.description}</p>
+            <p className="mt-6 max-w-2xl text-lg leading-9 text-muted">{home.description}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <ButtonLink href="/articles">{home.readArticles}</ButtonLink>
               <ButtonLink href="/courses" variant="secondary">
@@ -53,7 +53,7 @@ export default async function HomePage() {
               </ButtonLink>
             </div>
           </div>
-          <div className="rounded-lg border border-cyan-300/20 bg-slate-900/80 p-6 shadow-[0_0_60px_rgba(34,211,238,0.16)]">
+          <div className="rounded-lg border border-cyan-300/20 bg-surface/80 p-6 shadow-[0_0_60px_rgba(34,211,238,0.16)]">
             <div className="grid gap-4 sm:grid-cols-2">
               {[
                 { Icon: BookOpen, title: home.articles, text: home.articlesBody },
@@ -63,11 +63,11 @@ export default async function HomePage() {
               ].map(({ Icon, title, text }) => (
                 <div
                   key={String(title)}
-                  className="rounded-lg border border-white/10 bg-white/5 p-5"
+                  className="rounded-lg border border-line/10 bg-overlay/5 p-5"
                 >
-                  <Icon className="h-7 w-7 text-cyan-200" />
+                  <Icon className="h-7 w-7 text-accent" />
                   <h3 className="mt-4 font-black">{String(title)}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">{String(text)}</p>
+                  <p className="mt-2 text-sm leading-6 text-muted">{String(text)}</p>
                 </div>
               ))}
             </div>
@@ -83,7 +83,7 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      <Section eyebrow={nav.schedule} title={home.upcomingClasses} className="bg-slate-900">
+      <Section eyebrow={nav.schedule} title={home.upcomingClasses} className="bg-surface">
         <div className="grid gap-5 lg:grid-cols-3">
           {classes.map((item) => (
             <ClassCard key={item.id} item={item} />
@@ -99,7 +99,7 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      <Section eyebrow={home.why} title={home.whyTitle} className="bg-slate-900">
+      <Section eyebrow={home.why} title={home.whyTitle} className="bg-surface">
         <div className="grid gap-5 md:grid-cols-4">
           {[
             [home.students, stats[0]],
@@ -107,9 +107,9 @@ export default async function HomePage() {
             [nav.articles, stats[2]],
             [home.enrollments, stats[3]],
           ].map(([label, value]) => (
-            <div key={label} className="rounded-lg border border-white/10 bg-slate-950 p-6">
-              <p className="text-4xl font-black text-cyan-200">{value}</p>
-              <p className="mt-2 text-sm font-semibold text-slate-300">{label}</p>
+            <div key={label} className="rounded-lg border border-line/10 bg-page p-6">
+              <p className="text-4xl font-black text-accent">{value}</p>
+              <p className="mt-2 text-sm font-semibold text-muted">{label}</p>
             </div>
           ))}
         </div>
@@ -123,7 +123,7 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      <Section eyebrow={home.testimonials} title={home.feedback} className="bg-slate-900">
+      <Section eyebrow={home.testimonials} title={home.feedback} className="bg-surface">
         <div className="grid gap-5 lg:grid-cols-3">
           {testimonials.map((item) => (
             <TestimonialCard key={item.id} item={item} />
@@ -133,18 +133,18 @@ export default async function HomePage() {
 
       <Section eyebrow={home.community} title={home.communityTitle}>
         <div className="grid gap-5 lg:grid-cols-2">
-          <div className="rounded-lg border border-white/10 bg-slate-900 p-6">
-            <ExternalLink className="h-8 w-8 text-cyan-200" />
+          <div className="rounded-lg border border-line/10 bg-surface p-6">
+            <ExternalLink className="h-8 w-8 text-accent" />
             <h3 className="mt-4 text-2xl font-black">{home.facebookTitle}</h3>
-            <p className="mt-3 leading-8 text-slate-300">{home.facebookBody}</p>
+            <p className="mt-3 leading-8 text-muted">{home.facebookBody}</p>
             <ButtonLink href={brand.facebookUrl} variant="accent" className="mt-5">
               {home.facebookButton}
             </ButtonLink>
           </div>
-          <div className="rounded-lg border border-white/10 bg-slate-900 p-6">
-            <Users className="h-8 w-8 text-cyan-200" />
+          <div className="rounded-lg border border-line/10 bg-surface p-6">
+            <Users className="h-8 w-8 text-accent" />
             <h3 className="mt-4 text-2xl font-black">{home.faqTitle}</h3>
-            <p className="mt-3 leading-8 text-slate-300">{home.faqBody}</p>
+            <p className="mt-3 leading-8 text-muted">{home.faqBody}</p>
             <ButtonLink href="/faq" variant="secondary" className="mt-5">
               {home.faqButton}
             </ButtonLink>

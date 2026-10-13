@@ -45,7 +45,19 @@ through `getLanguage()` in `frontend/src/lib/i18n-server.ts`. Article/course con
 testimonials, and the remaining page-specific forms currently retain their original
 language; this selector does not automatically translate authored content.
 
-Admin seed login:
+## Website Theme
+
+The sun/moon button beside the language selector switches between light and dark
+mode on desktop and mobile. Dark mode is the default. The `21ct-theme` cookie
+remembers the choice for one year, independently of the language preference.
+The saved theme is rendered by the server before the page is displayed, so a
+reload does not flash the other theme. No database is required for this setting.
+
+Theme colors are defined in `frontend/src/app/globals.css`. Use semantic utilities
+such as `bg-page`, `bg-surface`, `text-foreground`, and `text-muted` for new UI so
+both themes stay consistent. Bright action buttons retain their dark text for contrast.
+
+## Admin Seed Login
 
 ```text
 Email: admin@21ct.local

@@ -18,7 +18,7 @@ export function ActionForm({
     <form action={formAction} className="grid gap-4">
       {children}
       {state.message ? (
-        <p className={state.ok ? "text-sm font-semibold text-emerald-200" : "text-sm font-semibold text-orange-200"}>
+        <p className={state.ok ? "text-sm font-semibold text-success" : "text-sm font-semibold text-warning"}>
           {state.message}
         </p>
       ) : null}

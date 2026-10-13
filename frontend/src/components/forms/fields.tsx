@@ -10,13 +10,13 @@ export function TextField({
   required?: boolean;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-slate-200">
+    <label className="grid gap-2 text-sm font-semibold text-foreground">
       {label}
       <input
         name={name}
         type={type}
         required={required}
-        className="min-h-11 rounded-lg border border-white/10 bg-slate-950 px-3 text-white outline-none focus:border-cyan-300"
+        className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground outline-none focus:border-accent"
       />
     </label>
   );
@@ -24,13 +24,13 @@ export function TextField({
 
 export function TextAreaField({ label, name, required = false }: { label: string; name: string; required?: boolean }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-slate-200">
+    <label className="grid gap-2 text-sm font-semibold text-foreground">
       {label}
       <textarea
         name={name}
         required={required}
         rows={5}
-        className="rounded-lg border border-white/10 bg-slate-950 px-3 py-3 text-white outline-none focus:border-cyan-300"
+        className="rounded-lg border border-line/10 bg-page px-3 py-3 text-foreground outline-none focus:border-accent"
       />
     </label>
   );
@@ -38,12 +38,12 @@ export function TextAreaField({ label, name, required = false }: { label: string
 
 export function SelectField({ label, name, options, required = false }: { label: string; name: string; options: string[]; required?: boolean }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-slate-200">
+    <label className="grid gap-2 text-sm font-semibold text-foreground">
       {label}
       <select
         name={name}
         required={required}
-        className="min-h-11 rounded-lg border border-white/10 bg-slate-950 px-3 text-white outline-none focus:border-cyan-300"
+        className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground outline-none focus:border-accent"
       >
         <option value="">Select</option>
         {options.map((option) => (

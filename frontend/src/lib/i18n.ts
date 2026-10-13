@@ -20,7 +20,8 @@ const en = {
     openMenu: "Open menu",
     closeMenu: "Close menu",
     mainNavigation: "Main navigation",
-    theme: "Toggle theme",
+    lightMode: "Switch to light mode",
+    darkMode: "Switch to dark mode",
   },
   home: {
     title: "Explore technology and build your IT skills",
@@ -100,7 +101,8 @@ const my: Dictionary = {
     openMenu: "မီနူးဖွင့်ရန်",
     closeMenu: "မီနူးပိတ်ရန်",
     mainNavigation: "ပင်မလမ်းညွှန်",
-    theme: "အပြင်အဆင်ပြောင်းရန်",
+    lightMode: "အလင်းရောင်ပုံစံသို့ ပြောင်းရန်",
+    darkMode: "အမှောင်ပုံစံသို့ ပြောင်းရန်",
   },
   home: {
     title: "နည်းပညာနဲ့ IT ပညာရပ်တွေကို မြန်မာလို လွယ်ကူစွာ လေ့လာပါ",

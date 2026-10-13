@@ -24,13 +24,13 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
   ]);
   return (
     <Section eyebrow="Courses" title="Professional course catalog" body="Computer, Networking, Cybersecurity, AI, IT Support, Web Development and Career Preparation.">
-      <form className="mb-8 grid gap-3 rounded-lg border border-white/10 bg-slate-900 p-4 md:grid-cols-[1fr_220px_180px_auto]">
-        <input name="q" defaultValue={params.q} placeholder="Search courses" className="min-h-11 rounded-lg bg-slate-950 px-3 text-white" />
-        <select name="category" defaultValue={params.category} className="min-h-11 rounded-lg bg-slate-950 px-3 text-white">
+      <form className="mb-8 grid gap-3 rounded-lg border border-line/10 bg-surface p-4 md:grid-cols-[1fr_220px_180px_auto]">
+        <input name="q" defaultValue={params.q} placeholder="Search courses" className="min-h-11 rounded-lg bg-page px-3 text-foreground" />
+        <select name="category" defaultValue={params.category} className="min-h-11 rounded-lg bg-page px-3 text-foreground">
           <option value="">All categories</option>
           {categories.map((category) => <option key={category.id} value={category.slug}>{category.name}</option>)}
         </select>
-        <select name="level" defaultValue={params.level} className="min-h-11 rounded-lg bg-slate-950 px-3 text-white">
+        <select name="level" defaultValue={params.level} className="min-h-11 rounded-lg bg-page px-3 text-foreground">
           <option value="">All levels</option><option value="BEGINNER">Beginner</option><option value="INTERMEDIATE">Intermediate</option><option value="ADVANCED">Advanced</option>
         </select>
         <button className="rounded-lg bg-cyan-300 px-5 font-bold text-slate-950">Filter</button>

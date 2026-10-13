@@ -26,22 +26,22 @@ export async function CourseCard({ course }: CourseCardProps) {
   } = await getLanguage();
   const price = course.discountPrice ?? course.price;
   return (
-    <article className="overflow-hidden rounded-lg border border-white/10 bg-slate-900 shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:border-cyan-300/40">
-      <div className="tech-grid flex h-36 items-end justify-between bg-slate-950 p-5">
+    <article className="overflow-hidden rounded-lg border border-line/10 bg-surface shadow-xl shadow-card-shadow transition hover:-translate-y-1 hover:border-cyan-300/40">
+      <div className="tech-grid flex h-36 items-end justify-between bg-page p-5">
         <Logo className="scale-90 origin-left" />
         <StatusBadge label={course.level} tone="orange" />
       </div>
       <div className="p-5">
         <StatusBadge label={course.category?.name || common.course} />
         <Link href={`/courses/${course.slug}`}>
-          <h3 className="mt-4 text-xl font-black leading-8 text-white hover:text-cyan-200">
+          <h3 className="mt-4 text-xl font-black leading-8 text-foreground hover:text-accent">
             {course.title}
           </h3>
         </Link>
-        <p className="mt-3 line-clamp-3 text-sm leading-7 text-slate-300">
+        <p className="mt-3 line-clamp-3 text-sm leading-7 text-muted">
           {course.shortDescription}
         </p>
-        <div className="mt-5 grid gap-2 text-xs text-slate-400">
+        <div className="mt-5 grid gap-2 text-xs text-subtle">
           <span className="inline-flex items-center gap-2">
             <Clock className="h-3.5 w-3.5" /> {course.duration}
           </span>
@@ -54,11 +54,11 @@ export async function CourseCard({ course }: CourseCardProps) {
         </div>
         <div className="mt-5 flex items-center justify-between">
           <div>
-            <p className="text-lg font-black text-cyan-200">
+            <p className="text-lg font-black text-accent">
               {price === 0 ? common.free : formatMoney(price)}
             </p>
             {course.discountPrice ? (
-              <p className="text-xs text-slate-500 line-through">{formatMoney(course.price)}</p>
+              <p className="text-xs text-faint line-through">{formatMoney(course.price)}</p>
             ) : null}
           </div>
           <Link

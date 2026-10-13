@@ -10,8 +10,8 @@ export function LanguageSelector({ locale }: { locale: Locale }) {
   const [pending, startTransition] = useTransition();
 
   return (
-    <label className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/20 bg-slate-900 px-2 text-slate-100 focus-within:ring-2 focus-within:ring-cyan-300">
-      <Languages aria-hidden="true" className="h-4 w-4 text-cyan-200" />
+    <label className="flex shrink-0 items-center gap-1.5 rounded-lg border border-line/20 bg-surface px-2 text-foreground focus-within:ring-2 focus-within:ring-accent">
+      <Languages aria-hidden="true" className="h-4 w-4 text-accent" />
       <span className="sr-only">{dictionaries[locale].nav.language}</span>
       <select
         value={locale}
@@ -23,7 +23,7 @@ export function LanguageSelector({ locale }: { locale: Locale }) {
           document.cookie = `${localeCookie}=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
           startTransition(() => router.refresh());
         }}
-        className="min-h-11 max-w-28 cursor-pointer rounded-lg bg-slate-900 text-sm font-semibold outline-none disabled:cursor-wait disabled:opacity-60"
+        className="min-h-11 max-w-28 cursor-pointer rounded-lg bg-surface text-sm font-semibold outline-none disabled:cursor-wait disabled:opacity-60"
       >
         <option value="en" lang="en">
           English

@@ -31,29 +31,29 @@ export async function ClassCard({ item }: ClassCardProps) {
   } = await getLanguage();
   const seats = Math.max(0, item.maxStudents - item.currentEnrolled);
   return (
-    <article className="rounded-lg border border-white/10 bg-slate-900 p-5 shadow-xl shadow-black/20">
+    <article className="rounded-lg border border-line/10 bg-surface p-5 shadow-xl shadow-card-shadow">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <StatusBadge label={item.status} tone={seats > 0 ? "green" : "orange"} />
-        <span className="text-sm font-bold text-cyan-200">
+        <span className="text-sm font-bold text-accent">
           {item.price === 0 ? common.free : formatMoney(item.price)}
         </span>
       </div>
-      <h3 className="mt-4 text-xl font-black text-white">{item.title}</h3>
-      <p className="mt-2 text-sm text-slate-300">
+      <h3 className="mt-4 text-xl font-black text-foreground">{item.title}</h3>
+      <p className="mt-2 text-sm text-muted">
         {item.course?.title} • {item.instructor?.fullName}
       </p>
-      <div className="mt-5 grid gap-2 text-sm text-slate-300">
+      <div className="mt-5 grid gap-2 text-sm text-muted">
         <span className="inline-flex items-center gap-2">
-          <CalendarDays className="h-4 w-4 text-cyan-200" />{" "}
+          <CalendarDays className="h-4 w-4 text-accent" />{" "}
           {item.startDate.toLocaleDateString(locale)} - {item.endDate.toLocaleDateString(locale)} •{" "}
           {item.daysOfWeek.join(", ")} • {item.startTime}-{item.endTime}
         </span>
         <span className="inline-flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-cyan-200" /> {item.deliveryType.replaceAll("_", " ")}{" "}
+          <MapPin className="h-4 w-4 text-accent" /> {item.deliveryType.replaceAll("_", " ")}{" "}
           {item.location ? `• ${item.location}` : ""}
         </span>
         <span className="inline-flex items-center gap-2">
-          <Users className="h-4 w-4 text-cyan-200" /> {seats} {common.seats}
+          <Users className="h-4 w-4 text-accent" /> {seats} {common.seats}
         </span>
       </div>
       <Link

@@ -5,6 +5,8 @@ import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { brand } from "@/lib/brand";
 import { getLanguage } from "@/lib/i18n-server";
+import { cookies } from "next/headers";
+import { resolveTheme, themeCookie } from "@/lib/theme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,13 +44,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const { locale } = await getLanguage();
+  const theme = resolveTheme((await cookies()).get(themeCookie)?.value);
   return (
     <html
       lang={locale}
+      data-theme={theme}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Header locale={locale} />
+        <Header locale={locale} theme={theme} />
         {children}
         <Footer />
       </body>

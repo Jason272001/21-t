@@ -16,11 +16,11 @@ export default async function EnrollmentPage({ searchParams }: { searchParams: P
 
   return (
     <Section eyebrow="Enrollment" title="အတန်းအပ်နှံရန်" body="Student registration, class selection, seat check, confirmation email, and dashboard enrollment are handled by this flow.">
-      <div className="rounded-lg border border-white/10 bg-slate-900 p-6">
+      <div className="rounded-lg border border-line/10 bg-surface p-6">
         <ActionForm action={enrollmentAction} submitLabel="Enrollment တင်ရန်">
-          <label className="grid gap-2 text-sm font-semibold text-slate-200">
+          <label className="grid gap-2 text-sm font-semibold text-foreground">
             Selected class
-            <select name="classScheduleId" defaultValue={params.classId} required className="min-h-11 rounded-lg border border-white/10 bg-slate-950 px-3 text-white">
+            <select name="classScheduleId" defaultValue={params.classId} required className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground">
               <option value="">Select class</option>
               {classes.map((klass) => (
                 <option key={klass.id} value={klass.id}>
@@ -45,9 +45,9 @@ export default async function EnrollmentPage({ searchParams }: { searchParams: P
           </div>
           <TextAreaField name="priorExperience" label="Prior experience" />
           <TextAreaField name="learningGoal" label="Learning goal" required />
-          <label className="flex gap-3 text-sm text-slate-200"><input name="agreement" type="checkbox" required /> Information is accurate.</label>
-          <label className="flex gap-3 text-sm text-slate-200"><input name="terms" type="checkbox" required /> I accept terms and conditions.</label>
-          <label className="flex gap-3 text-sm text-slate-200"><input name="privacy" type="checkbox" required /> I accept privacy policy.</label>
+          <label className="flex gap-3 text-sm text-foreground"><input name="agreement" type="checkbox" required /> Information is accurate.</label>
+          <label className="flex gap-3 text-sm text-foreground"><input name="terms" type="checkbox" required /> I accept terms and conditions.</label>
+          <label className="flex gap-3 text-sm text-foreground"><input name="privacy" type="checkbox" required /> I accept privacy policy.</label>
         </ActionForm>
       </div>
     </Section>

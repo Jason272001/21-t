@@ -27,19 +27,19 @@ export default async function ArticleDetailsPage({ params }: { params: Promise<{
   });
 
   return (
-    <main className="bg-slate-950 px-4 py-12 text-white lg:px-6">
+    <main className="bg-page px-4 py-12 text-foreground lg:px-6">
       <article className="mx-auto max-w-4xl">
-        <nav className="text-sm text-slate-400"><Link href="/">Home</Link> / <Link href="/articles">Articles</Link> / {article.category.name}</nav>
+        <nav className="text-sm text-subtle"><Link href="/">Home</Link> / <Link href="/articles">Articles</Link> / {article.category.name}</nav>
         <h1 className="mt-6 text-4xl font-black leading-tight md:text-5xl">{article.title}</h1>
-        <p className="mt-4 text-lg leading-9 text-slate-300">{article.excerpt}</p>
-        <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-400">
+        <p className="mt-4 text-lg leading-9 text-muted">{article.excerpt}</p>
+        <div className="mt-5 flex flex-wrap gap-3 text-sm text-subtle">
           <span>{article.author.name || "21CT"}</span><span>{article.readingTime} min read</span><span>{article.publishedAt?.toLocaleDateString()}</span>
         </div>
-        <div className="tech-grid mt-8 h-72 rounded-lg border border-cyan-300/20 bg-slate-900" />
+        <div className="tech-grid mt-8 h-72 rounded-lg border border-cyan-300/20 bg-surface" />
         <div className="prose-21ct mt-8 whitespace-pre-line">{article.content}</div>
-        <div className="mt-10 rounded-lg border border-white/10 bg-slate-900 p-6">
+        <div className="mt-10 rounded-lg border border-line/10 bg-surface p-6">
           <h2 className="text-2xl font-black">21CT မှ သင်တန်းအကြံပြုချက်</h2>
-          <p className="mt-3 text-slate-300">ဒီအကြောင်းအရာကို လက်တွေ့သင်တန်းအနေနဲ့ ဆက်လေ့လာချင်ပါက course catalog ကိုကြည့်ပါ။</p>
+          <p className="mt-3 text-muted">ဒီအကြောင်းအရာကို လက်တွေ့သင်တန်းအနေနဲ့ ဆက်လေ့လာချင်ပါက course catalog ကိုကြည့်ပါ။</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <ButtonLink href="/courses">သင်တန်းများ ကြည့်ရန်</ButtonLink>
             <ButtonLink href="/contact" variant="secondary">မေးမြန်းရန်</ButtonLink>

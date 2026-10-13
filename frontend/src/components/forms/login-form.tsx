@@ -25,11 +25,11 @@ export function LoginForm() {
         router.push("/student");
       }}
     >
-      <label className="grid gap-2 text-sm font-semibold text-slate-200">Email<input name="email" type="email" required className="min-h-11 rounded-lg border border-white/10 bg-slate-950 px-3 text-white" /></label>
-      <label className="grid gap-2 text-sm font-semibold text-slate-200">Password<input name="password" type="password" required className="min-h-11 rounded-lg border border-white/10 bg-slate-950 px-3 text-white" /></label>
-      {error ? <p className="text-sm font-semibold text-orange-200">{error}</p> : null}
+      <label className="grid gap-2 text-sm font-semibold text-foreground">Email<input name="email" type="email" required className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground" /></label>
+      <label className="grid gap-2 text-sm font-semibold text-foreground">Password<input name="password" type="password" required className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground" /></label>
+      {error ? <p className="text-sm font-semibold text-warning">{error}</p> : null}
       <button className="rounded-lg bg-cyan-300 px-5 py-2.5 text-sm font-bold text-slate-950">Login</button>
-      <a href="/forgot-password" className="text-sm font-semibold text-cyan-200">Forgot password?</a>
+      <a href="/forgot-password" className="text-sm font-semibold text-accent">Forgot password?</a>
     </form>
   );
 }

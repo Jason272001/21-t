@@ -7,9 +7,13 @@ export class AdminError extends Error {}
 
 type Actor = { id: string; role: string };
 
-async function assertAdmin(actor: Actor) {
-  const user = await prisma.user.findUnique({ where: { id: actor.id }, select: { role: true } });
-  if (user?.role !== "ADMIN") throw new AdminError("Administrator access is required.");
+export async function assertAdmin(actor: Actor) {
+  const user = await prisma.user.findUnique({
+    where: { id: actor.id },
+    select: { role: true, isActive: true },
+  });
+  if (user?.role !== "ADMIN" || !user.isActive)
+    throw new AdminError("Administrator access is required.");
 }
 
 export async function saveCourse(actor: Actor, input: CourseInput, id?: string) {

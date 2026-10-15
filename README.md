@@ -19,7 +19,7 @@ npm run db:setup
 npm run dev
 ```
 
-Open [http://localhost:3000/login](http://localhost:3000/login). The generated
+Open [http://localhost:3000/admin57/log-in](http://localhost:3000/admin57/log-in) for admin login. Students use `/login`. The generated
 admin email and password are in `.local-admin.txt` in this project. This file,
 local environment files, and database files are ignored by Git. Never upload them.
 
@@ -44,7 +44,7 @@ Keep `.env` and `frontend/.env.local` consistent when changing database or auth
 settings. `db:setup` does not overwrite either file. Stop PostgreSQL before
 moving the project or copying the local database directory.
 
-## First backend stage
+## Accounts, courses and enrollment
 
 - `/admin`: administrator-only course and class management, enrollment overview.
 - Create a draft course, fill its details, then select **Published**.
@@ -57,14 +57,48 @@ moving the project or copying the local database directory.
 - Enrollment requires sign-in, checks publication/deadline/capacity, prevents
   duplicates, and reserves seats transactionally. Free classes are confirmed;
   paid classes await payment. Payment collection/confirmation is not yet built.
-- Login attempts are limited to 10 per email within 15 minutes. Administrative
+- Login attempts are limited to 10 per account (or unknown identifier) within 15 minutes. Administrative
   actions verify the current database role rather than trusting the session role.
 - With no email API key, email notifications are logged locally, not delivered.
 
-This is the account, catalog, and enrollment foundation. Video upload/streaming,
-lesson access, quizzes/tests, progress tracking, event publishing, instructor
-management, payment workflows, password reset, and email verification are still
-future stages. Footer links for some future pages still lead to missing routes.
+## Student, blog and video management
+
+- Admin login: `/admin57/log-in` (unlisted in public navigation, marked noindex).
+  Student login: `/login`. Each login provider accepts only its intended role;
+  authorization is enforced on pages, actions and video endpoints.
+- `/admin/students`: search, create, edit, reset passwords, enable/disable and
+  delete student accounts. Changes invalidate existing sessions. Student
+  passwords require at least 12 characters. Administrators cannot be modified
+  through student management.
+- Deletion requires typing the student's email, permanently removes that
+  student's enrollment/payment/attendance records, and releases occupied seats.
+  Use **Account enabled** to disable access while retaining history instead.
+- `/admin/articles`: write, edit, publish, unpublish and delete blog posts. Public
+  posts appear at `/articles`. Draft posts and draft metadata are private.
+- `/admin/videos`: save video details as a draft, upload an MP4/WebM file (up to
+  250 MB), then publish. Files can be replaced and posts edited or deleted.
+  MP4 with H.264/AAC works across common browsers. This stage does not transcode
+  videos or generate adaptive streaming renditions.
+- Video audiences: **Everyone**, **Signed-in students**, or **Enrolled students
+  only** for a selected course. Enrolled-only access requires a confirmed or
+  completed enrollment; unpaid enrollments do not grant access.
+- `/videos` lists public videos; `/student/videos` includes videos available to
+  the signed-in student. Playback URLs enforce the same access rules as pages,
+  including for byte-range requests used to seek within a video.
+- Videos are streamed from disk outside the public assets directory. Set
+  `VIDEO_STORAGE_PATH` to an absolute persistent directory for deployment; the
+  default is `.local-uploads/videos` under the server's working directory.
+  Uploaded files are ignored by Git and must be backed up separately from the DB.
+  Ephemeral/serverless filesystems are not suitable for this storage backend.
+- The requested temporary admin account exists only in this local database. Its
+  credentials are in the ignored `.local-admin.txt`; no password is hardcoded in
+  authentication or committed to Git. Accounts marked `localOnly` cannot sign in
+  when `AUTH_URL` points at a hosted domain. Provision a strong live admin account
+  separately before deployment.
+
+Quizzes/tests, progress tracking, event publishing, instructor management,
+payment workflows, student self-service password recovery and email verification
+remain future stages. Footer links for some future pages still lead to missing routes.
 
 ## Checks
 
@@ -86,7 +120,7 @@ random `AUTH_SECRET`, `AUTH_URL` and `NEXT_PUBLIC_SITE_URL` for the live domain 
 your hosting environment. Configure Auth.js trusted-host handling for the chosen
 host. Apply `npm run db:deploy` against that database before enabling accounts.
 Create the first live administrator using `ADMIN_EMAIL`, `ADMIN_PASSWORD`
-(at least 12 characters, at most 72 UTF-8 bytes) and optionally `ADMIN_NAME` with
+(at least 12 characters, at most 72 UTF-8 bytes) and optionally `ADMIN_NAME` / `ADMIN_USERNAME` with
 `npm run admin:create`. Supply those through environment variables, never Git.
 The command preserves an existing admin and refuses to promote an existing student.
 

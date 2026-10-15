@@ -6,7 +6,7 @@ import { useState } from "react";
 import { portalCopy } from "@/lib/portal-copy";
 import type { Locale } from "@/lib/i18n";
 
-export function LoginForm({ locale }: { locale: Locale }) {
+export function LoginForm({ locale, admin = false }: { locale: Locale; admin?: boolean }) {
   const router = useRouter();
   const t = portalCopy(locale);
   const [error, setError] = useState(false);
@@ -21,7 +21,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
         setError(false);
         setPending(true);
         try {
-          const result = await signIn("credentials", {
+          const result = await signIn(admin ? "admin-credentials" : "student-credentials", {
             email: form.get("email"),
             password: form.get("password"),
             redirect: false,
@@ -31,7 +31,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
             setPending(false);
             return;
           }
-          router.replace("/portal");
+          router.replace(admin ? "/admin" : "/student");
           router.refresh();
         } catch {
           setError(true);
@@ -40,10 +40,14 @@ export function LoginForm({ locale }: { locale: Locale }) {
       }}
     >
       <label className="grid gap-2 text-sm font-semibold">
-        {t.email}
+        {admin
+          ? locale === "en"
+            ? "Admin username or email"
+            : "စီမံသူ အမည် သို့မဟုတ် အီးမေးလ်"
+          : t.email}
         <input
           name="email"
-          type="email"
+          type={admin ? "text" : "email"}
           autoComplete="username"
           required
           className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground"
@@ -70,9 +74,11 @@ export function LoginForm({ locale }: { locale: Locale }) {
       >
         {pending ? t.loggingIn : t.login}
       </button>
-      <Link href="/register" className="text-sm font-semibold text-accent">
-        {t.register}
-      </Link>
+      {!admin && (
+        <Link href="/register" className="text-sm font-semibold text-accent">
+          {t.register}
+        </Link>
+      )}
     </form>
   );
 }

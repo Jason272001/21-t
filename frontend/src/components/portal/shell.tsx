@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { logoutAction } from "@backend/actions/account";
+import { managementCopy } from "@/lib/management-copy";
 import { portalCopy } from "@/lib/portal-copy";
 import type { Locale } from "@/lib/i18n";
 
@@ -19,6 +20,7 @@ export function PortalShell({
   children: React.ReactNode;
 }) {
   const t = portalCopy(locale);
+  const m = managementCopy(locale);
   return (
     <main className="flex-1 bg-page px-4 py-10 text-foreground lg:px-6">
       <div className="mx-auto max-w-7xl">
@@ -35,13 +37,31 @@ export function PortalShell({
             >
               {admin ? t.admin : t.student}
             </Link>
-            <form action={logoutAction}>
+            <form action={logoutAction.bind(null, admin)}>
               <button className="min-h-11 rounded-lg bg-overlay/10 px-4 py-2.5 text-sm font-semibold">
                 {t.signOut}
               </button>
             </form>
           </div>
         </div>
+        {admin && (
+          <nav aria-label="Admin sections" className="mb-8 flex flex-wrap gap-3">
+            {[
+              ["/admin", t.admin],
+              ["/admin/students", m.students],
+              ["/admin/articles", m.articles],
+              ["/admin/videos", m.videos],
+            ].map(([href, label]) => (
+              <Link
+                key={href}
+                href={href}
+                className="rounded-lg border border-line/20 bg-surface px-4 py-3 text-sm font-semibold hover:text-accent"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        )}
         {children}
       </div>
     </main>

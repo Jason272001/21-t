@@ -97,6 +97,10 @@ model User {
   id              String             @id @default(cuid())
   name            String?
   email           String             @unique
+  username        String?            @unique
+  isActive        Boolean            @default(true)
+  authVersion     Int                @default(0)
+  localOnly       Boolean            @default(false)
   emailVerified   DateTime?
   image           String?
   passwordHash    String?
@@ -262,6 +266,7 @@ model Course {
   featured      Boolean              @default(false)
   category      CourseCategory       @relation(fields: [categoryId], references: [id])
   instructor    InstructorProfile    @relation(fields: [instructorId], references: [id])
+  videos        Video[]
   curriculumSections CurriculumSection[]
   classSchedules ClassSchedule[]
   materials     CourseMaterial[]
@@ -442,4 +447,26 @@ model SiteSetting {
   value     Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum VideoAudience {
+  PUBLIC
+  STUDENTS
+  ENROLLED
+}
+
+model Video {
+  id          String        @id @default(cuid())
+  title       String
+  description String        @db.Text
+  status      ArticleStatus @default(DRAFT)
+  audience    VideoAudience @default(STUDENTS)
+  courseId    String?
+  fileKey     String?
+  mimeType    String?
+  size        Int?
+  course      Course?       @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  @@index([status, audience])
 }

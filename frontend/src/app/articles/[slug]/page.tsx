@@ -7,48 +7,72 @@ import { prisma } from "@backend/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
-  const article = await prisma.article.findUnique({ where: { slug } });
-  return { title: article?.seoTitle || article?.title, description: article?.seoDescription || article?.excerpt };
+  const article = await prisma.article.findUnique({ where: { slug, status: "PUBLISHED" } });
+  return {
+    title: article?.seoTitle || article?.title,
+    description: article?.seoDescription || article?.excerpt,
+  };
 }
 
-export default async function ArticleDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ArticleDetailsPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const article = await prisma.article.findUnique({
-    where: { slug },
-    include: { category: true, author: true, tags: true },
+    where: { slug, status: "PUBLISHED" },
+    include: { category: true, author: { select: { name: true } }, tags: true },
   });
   if (!article) notFound();
   const related = await prisma.article.findMany({
     where: { categoryId: article.categoryId, id: { not: article.id }, status: "PUBLISHED" },
-    include: { category: true, author: true },
+    include: { category: true, author: { select: { name: true } } },
     take: 3,
   });
 
   return (
     <main className="bg-page px-4 py-12 text-foreground lg:px-6">
       <article className="mx-auto max-w-4xl">
-        <nav className="text-sm text-subtle"><Link href="/">Home</Link> / <Link href="/articles">Articles</Link> / {article.category.name}</nav>
+        <nav className="text-sm text-subtle">
+          <Link href="/">Home</Link> / <Link href="/articles">Articles</Link> /{" "}
+          {article.category.name}
+        </nav>
         <h1 className="mt-6 text-4xl font-black leading-tight md:text-5xl">{article.title}</h1>
         <p className="mt-4 text-lg leading-9 text-muted">{article.excerpt}</p>
         <div className="mt-5 flex flex-wrap gap-3 text-sm text-subtle">
-          <span>{article.author.name || "21CT"}</span><span>{article.readingTime} min read</span><span>{article.publishedAt?.toLocaleDateString()}</span>
+          <span>{article.author.name || "21CT"}</span>
+          <span>{article.readingTime} min read</span>
+          <span>{article.publishedAt?.toLocaleDateString()}</span>
         </div>
         <div className="tech-grid mt-8 h-72 rounded-lg border border-cyan-300/20 bg-surface" />
         <div className="prose-21ct mt-8 whitespace-pre-line">{article.content}</div>
         <div className="mt-10 rounded-lg border border-line/10 bg-surface p-6">
           <h2 className="text-2xl font-black">21CT မှ သင်တန်းအကြံပြုချက်</h2>
-          <p className="mt-3 text-muted">ဒီအကြောင်းအရာကို လက်တွေ့သင်တန်းအနေနဲ့ ဆက်လေ့လာချင်ပါက course catalog ကိုကြည့်ပါ။</p>
+          <p className="mt-3 text-muted">
+            ဒီအကြောင်းအရာကို လက်တွေ့သင်တန်းအနေနဲ့ ဆက်လေ့လာချင်ပါက course catalog ကိုကြည့်ပါ။
+          </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <ButtonLink href="/courses">သင်တန်းများ ကြည့်ရန်</ButtonLink>
-            <ButtonLink href="/contact" variant="secondary">မေးမြန်းရန်</ButtonLink>
+            <ButtonLink href="/contact" variant="secondary">
+              မေးမြန်းရန်
+            </ButtonLink>
           </div>
         </div>
       </article>
       <section className="mx-auto mt-12 max-w-7xl">
         <h2 className="mb-5 text-2xl font-black">Related articles</h2>
-        <div className="grid gap-5 md:grid-cols-3">{related.map((item) => <ArticleCard key={item.id} article={item} />)}</div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {related.map((item) => (
+            <ArticleCard key={item.id} article={item} />
+          ))}
+        </div>
       </section>
     </main>
   );

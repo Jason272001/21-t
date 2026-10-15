@@ -8,7 +8,7 @@ export class EnrollmentError extends Error {}
 export async function enrollStudent(userId: string, input: z.infer<typeof enrollmentSchema>) {
   return prisma.$transaction(async (tx) => {
     const user = await tx.user.findUnique({ where: { id: userId } });
-    if (!user || user.email.toLowerCase() !== input.email.toLowerCase())
+    if (!user?.isActive || user.email.toLowerCase() !== input.email.toLowerCase())
       throw new EnrollmentError("Sign in with your own account to enroll.");
     const profileData = {
       phone: input.phone,

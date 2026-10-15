@@ -1,0 +1,68 @@
+import type { Locale } from "./i18n";
+const words = {
+  students: ["Students", "သင်တန်းသားများ"],
+  articles: ["Blog posts", "ဘလော့ဂ်ပို့စ်များ"],
+  videos: ["Videos", "ဗီဒီယိုများ"],
+  createStudent: ["Create student", "သင်တန်းသား ဖန်တီးရန်"],
+  createArticle: ["Write blog post", "ဘလော့ဂ်ရေးရန်"],
+  createVideo: ["Add video", "ဗီဒီယိုထည့်ရန်"],
+  name: ["Full name", "အမည်အပြည့်အစုံ"],
+  email: ["Email", "အီးမေးလ်"],
+  password: ["Password", "စကားဝှက်"],
+  passwordHint: [
+    "At least 12 characters. Leave blank when editing to keep the current password.",
+    "အနည်းဆုံး စာလုံး ၁၂ လုံး။ မပြောင်းလိုပါက ပြင်ဆင်ချိန်တွင် ကွက်လပ်ထားပါ။",
+  ],
+  phone: ["Phone", "ဖုန်း"],
+  city: ["City", "မြို့"],
+  country: ["Country", "နိုင်ငံ"],
+  active: ["Account enabled", "အကောင့် ဖွင့်ထားမည်"],
+  save: ["Save changes", "ပြောင်းလဲမှု သိမ်းရန်"],
+  saved: ["Changes saved.", "သိမ်းပြီးပါပြီ။"],
+  edit: ["Edit", "ပြင်ဆင်ရန်"],
+  title: ["Title", "ခေါင်းစဉ်"],
+  category: ["Category", "အမျိုးအစား"],
+  excerpt: ["Summary", "အကျဉ်းချုပ်"],
+  content: ["Post content", "ပို့စ်အကြောင်းအရာ"],
+  status: ["Status", "အခြေအနေ"],
+  featured: ["Feature on homepage", "ပင်မစာမျက်နှာတွင် ပြမည်"],
+  description: ["Description", "ဖော်ပြချက်"],
+  audience: ["Who can watch", "ကြည့်ရှုနိုင်သူများ"],
+  course: ["Course", "သင်တန်း"],
+  noCourse: ["No course", "သင်တန်းမရွေးရသေးပါ"],
+  public: ["Everyone", "လူတိုင်း"],
+  signedIn: ["Signed-in students", "အကောင့်ဝင်ထားသော သင်တန်းသားများ"],
+  enrolled: ["Enrolled students only", "အတန်းအပ်ထားသူများသာ"],
+  videoHint: [
+    "Save a draft, upload your video, then publish when ready.",
+    "မူကြမ်းသိမ်းပြီး ဗီဒီယိုတင်ပါ။ အဆင်သင့်ဖြစ်လျှင် ထုတ်ပြန်ပါ။",
+  ],
+  upload: ["Upload video", "ဗီဒီယိုတင်ရန်"],
+  uploading: ["Uploading…", "တင်နေသည်…"],
+  uploaded: ["Video uploaded. You can now publish it.", "ဗီဒီယိုတင်ပြီးပါပြီ။ ထုတ်ပြန်နိုင်ပါပြီ။"],
+  uploadHint: [
+    "MP4 or WebM, up to 250 MB. For MP4, use H.264 video and AAC audio for broad browser support.",
+    "MP4 သို့မဟုတ် WebM၊ 250 MB အထိ။ MP4 အတွက် H.264 နှင့် AAC ကို အသုံးပြုပါ။",
+  ],
+  delete: ["Delete permanently", "အပြီးတိုင် ဖျက်ရန်"],
+  deleteHint: [
+    "This permanently removes the record. Type the value below to confirm.",
+    "ဤအချက်အလက်ကို အပြီးတိုင်ဖျက်မည်။ အတည်ပြုရန် အောက်ပါစာကို ရိုက်ထည့်ပါ။",
+  ],
+  studentDelete: [
+    "Deleting a student also removes their enrollments, payment records and attendance, and releases their seats. Disable the account instead if you need to keep its history.",
+    "သင်တန်းသားကို ဖျက်လျှင် အတန်းအပ်မှု၊ ငွေပေးချေမှုနှင့် တက်ရောက်မှုမှတ်တမ်းများလည်း ဖျက်မည်။ မှတ်တမ်းထားလိုပါက အကောင့်ပိတ်ထားပါ။",
+  ],
+  empty: ["Nothing here yet.", "မရှိသေးပါ။"],
+  watch: ["Watch video", "ဗီဒီယိုကြည့်ရန်"],
+  view: ["View post", "ပို့စ်ကြည့်ရန်"],
+  search: ["Search students", "သင်တန်းသား ရှာရန်"],
+  enabled: ["Enabled", "ဖွင့်ထားသည်"],
+  disabled: ["Disabled", "ပိတ်ထားသည်"],
+  library: ["Video library", "ဗီဒီယိုစာကြည့်တိုက်"],
+} as const;
+export function managementCopy(locale: Locale) {
+  return Object.fromEntries(
+    Object.entries(words).map(([key, value]) => [key, value[locale === "my" ? 1 : 0]]),
+  ) as Record<keyof typeof words, string>;
+}

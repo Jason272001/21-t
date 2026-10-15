@@ -7,6 +7,11 @@ const db = new PrismaClient();
 async function main() {
   const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
+  const username = process.env.ADMIN_USERNAME?.trim().toLowerCase();
+  if (username && !/^[a-z0-9_-]{3,32}$/.test(username))
+    throw new Error(
+      "ADMIN_USERNAME must use 3–32 lowercase letters, numbers, underscores or hyphens.",
+    );
   const name = process.env.ADMIN_NAME?.trim() || "21CT Admin";
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     throw new Error("Set a valid ADMIN_EMAIL.");
@@ -25,6 +30,7 @@ async function main() {
   await db.user.create({
     data: {
       email,
+      username,
       name,
       role: "ADMIN",
       passwordHash: await bcrypt.hash(password, 12),
@@ -41,7 +47,7 @@ async function main() {
       },
     },
   });
-  console.log("Admin account created. Sign in at /login to open /admin.");
+  console.log("Admin account created. Sign in at /admin57/log-in to open /admin.");
 }
 
 main()

@@ -31,7 +31,9 @@
     "../backend/src/**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "../backend/tests/**/*.ts",
+    "../backend/scripts/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

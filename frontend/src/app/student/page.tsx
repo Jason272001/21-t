@@ -4,6 +4,7 @@ import { PortalShell } from "@/components/portal/shell";
 import { ButtonLink } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getLanguage } from "@/lib/i18n-server";
+import { managementCopy } from "@/lib/management-copy";
 import { enumLabel, portalCopy } from "@/lib/portal-copy";
 
 export const metadata = { title: "My learning", robots: { index: false, follow: false } };
@@ -33,7 +34,8 @@ export default async function StudentPage({
           {t.denied}
         </p>
       )}
-      <div className="mb-8">
+      <div className="mb-8 flex flex-wrap gap-3">
+        <ButtonLink href="/student/videos">{managementCopy(locale).library}</ButtonLink>
         <ButtonLink href="/courses">{t.browse}</ButtonLink>
       </div>
       {enrollments.length ? (

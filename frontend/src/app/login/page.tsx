@@ -19,7 +19,9 @@ export default async function LoginPage({
     <main className="bg-page px-4 py-16 text-foreground">
       <section className="mx-auto max-w-md rounded-lg border border-line/10 bg-surface p-6">
         <Logo />
-        <h1 className="mt-8 text-3xl font-black">{t.login}</h1>
+        <h1 className="mt-8 text-3xl font-black">
+          {locale === "en" ? "Student sign in" : "သင်တန်းသား အကောင့်ဝင်ရန်"}
+        </h1>
         <p className="mt-2 text-sm text-muted">{t.loginHint}</p>
         {params.registered ? (
           <p role="status" className="mt-4 text-accent">

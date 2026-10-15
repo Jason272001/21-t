@@ -5,7 +5,7 @@ const en = {
   student: "My learning",
   signOut: "Sign out",
   back: "Back to dashboard",
-  adminIntro: "Create a course, schedule a class, and publish it when you are ready.",
+  adminIntro: "Manage students, publish blog posts and videos, and organize your classes.",
   courses: "Courses",
   classes: "Classes",
   enrollments: "Enrollments",
@@ -80,7 +80,8 @@ const my: Record<keyof typeof en, string> = {
   student: "ကျွန်ုပ်၏သင်ယူမှု",
   signOut: "အကောင့်ထွက်ရန်",
   back: "စီမံခန့်ခွဲမှုသို့ ပြန်ရန်",
-  adminIntro: "သင်တန်းဖန်တီးပြီး အတန်းချိန်ဇယားသတ်မှတ်ကာ အဆင်သင့်ဖြစ်လျှင် ထုတ်ပြန်နိုင်ပါသည်။",
+  adminIntro:
+    "သင်တန်းသားများကို စီမံပြီး ဘလော့ဂ်နှင့် ဗီဒီယိုများ ထုတ်ပြန်ကာ အတန်းများ စီစဉ်နိုင်ပါသည်။",
   courses: "သင်တန်းများ",
   classes: "အတန်းများ",
   enrollments: "အတန်းအပ်နှံမှုများ",

@@ -120,7 +120,7 @@ if (mode === "stop") {
       env: childEnv,
     });
     const credentials =
-      "LOCAL DEVELOPMENT ONLY\nLogin: http://localhost:3000/login\nEmail: admin@21ct.local\nPassword: " +
+      "LOCAL DEVELOPMENT ONLY\nLogin: http://localhost:3000/admin57/log-in\nEmail: admin@21ct.local\nPassword: " +
       config.adminPassword +
       "\n";
     if (!existsSync(".local-admin.txt"))

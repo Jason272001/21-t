@@ -6,6 +6,7 @@ import { getLanguage } from "@/lib/i18n-server";
 
 export async function Footer() {
   const {
+    locale,
     messages: { nav, footer },
   } = await getLanguage();
   return (
@@ -43,6 +44,7 @@ export async function Footer() {
           links={[
             [nav.articles, "/articles"],
             [nav.courses, "/courses"],
+            [locale === "en" ? "Videos" : "ဗီဒီယိုများ", "/videos"],
             [footer.schedule, "/schedule"],
             [footer.faq, "/faq"],
           ]}
@@ -52,7 +54,6 @@ export async function Footer() {
           links={[
             [footer.student, "/student"],
             [footer.instructor, "/instructor"],
-            [footer.admin, "/admin"],
             [footer.register, "/register"],
           ]}
         />

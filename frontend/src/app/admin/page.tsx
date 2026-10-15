@@ -5,6 +5,7 @@ import { PortalShell } from "@/components/portal/shell";
 import { ButtonLink } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getLanguage } from "@/lib/i18n-server";
+import { managementCopy } from "@/lib/management-copy";
 import { enumLabel, portalCopy } from "@/lib/portal-copy";
 
 export const metadata = { title: "Admin dashboard", robots: { index: false, follow: false } };
@@ -13,6 +14,7 @@ export default async function AdminPage() {
   const user = await requireAdmin();
   const { locale } = await getLanguage();
   const t = portalCopy(locale);
+  const m = managementCopy(locale);
   const [courses, classes, enrollments, studentCount, enrollmentCount] = await Promise.all([
     prisma.course.findMany({
       orderBy: { updatedAt: "desc" },
@@ -55,6 +57,9 @@ export default async function AdminPage() {
         ))}
       </div>
       <div className="mb-10 flex flex-wrap gap-3">
+        <ButtonLink href="/admin/students/new">{m.createStudent}</ButtonLink>
+        <ButtonLink href="/admin/articles/new">{m.createArticle}</ButtonLink>
+        <ButtonLink href="/admin/videos/new">{m.createVideo}</ButtonLink>
         <ButtonLink href="/admin/courses/new">{t.newCourse}</ButtonLink>
         {courses.length > 0 && (
           <ButtonLink href="/admin/classes/new" variant="accent">

@@ -165,6 +165,14 @@ Connection URLs, passwords and local deployment notes belong only in ignored
 files or Render environment variables. Never commit them. Rotate any database
 password shared in a screenshot and update its connection URL in Render.
 
+Deployment dependency review (2026-10-15): Next.js 16.4.2 and Auth.js beta.32
+include the available fixes for the critical advisories detected during deployment.
+After compatible dependency updates, npm audit still reports eight high-severity
+entries in the ESLint glob dependency chain and Prisma CLI's config merge chain.
+These need a separate tooling upgrade review; do not run `npm audit fix --force`,
+which proposes a Next ESLint downgrade and Prisma major migration. Do not pass
+untrusted glob patterns or config objects to these tools.
+
 ## Website Language
 
 The top navigation includes an English / မြန်မာ selector on desktop and mobile.

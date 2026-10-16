@@ -16,7 +16,9 @@
     "db:start": "node backend/scripts/local-db.mjs start",
     "db:stop": "node backend/scripts/local-db.mjs stop",
     "db:deploy": "prisma migrate deploy --schema backend/prisma/schema.prisma",
-    "admin:create": "tsx --env-file=.env backend/scripts/create-admin.ts",
+    "admin:create": "tsx --env-file-if-exists=.env backend/scripts/create-admin.ts",
+    "render:build": "node backend/scripts/render.mjs build",
+    "render:start": "node backend/scripts/render.mjs start",
     "test": "tsx --env-file=.env --test --test-concurrency=1 backend/tests/*.test.ts",
     "postinstall": "prisma generate --schema backend/prisma/schema.prisma"
   },

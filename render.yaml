@@ -1,0 +1,29 @@
+# Uses the existing PostgreSQL database: supply its Internal Database URL.
+# Review Render's paid service and disk charges before applying this blueprint.
+services:
+  - type: web
+    name: 21-t
+    runtime: node
+    region: oregon
+    plan: 0.5c-512mb
+    buildCommand: npm ci --include=dev && npm run render:build
+    preDeployCommand: npm run db:deploy
+    startCommand: npm run render:start
+    healthCheckPath: /api/health
+    disk:
+      name: videos
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATABASE_URL
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: AUTH_TRUST_HOST
+        value: "true"
+      - key: VIDEO_STORAGE_PATH
+        value: /var/data/videos
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"

@@ -127,6 +127,44 @@ The command preserves an existing admin and refuses to promote an existing stude
 The legacy `npm run seed` deletes application data and uses demo credentials;
 it is not part of this setup and must not be run against a live database.
 
+## Render deployment
+
+The repository includes `render.yaml` for one Node web service running the website,
+server actions, authentication and video API together. It uses your existing Render
+PostgreSQL database; it does not create another database. Import the repository as
+a Render Blueprint and enter the database's **Internal Database URL** when prompted
+for `DATABASE_URL`. Both services must be in Oregon in the same Render account.
+
+Review the paid web-service and 1 GB persistent-disk costs before deploying. The
+disk mounts at `/var/data`; videos use `/var/data/videos`. Increase its size before
+it fills up, and back up video files separately from PostgreSQL. Free web services
+cannot persist these uploads across redeploys. A single disk also means a single
+service instance and brief downtime during redeployment.
+
+For a free preview, configure the existing service manually with the same build
+command, `npm run db:deploy && npm run render:start` as its start command, and no
+disk or `VIDEO_STORAGE_PATH`. Uploads are blocked on Render until that path is set
+to an attached persistent disk. PostgreSQL-backed student and blog features work
+without a disk. The paid blueprint uses a pre-deploy migration instead.
+
+The build installs dependencies and builds Next.js. The pre-deploy command applies
+versioned migrations with `npm run db:deploy`; it never runs the destructive demo
+seed. `/api/health` reports readiness against an application database table. The
+launcher uses Render's assigned HTTPS URL for authentication and site links and
+binds to Render's `PORT` on `0.0.0.0`. For a custom domain, set `AUTH_URL` and
+`NEXT_PUBLIC_SITE_URL` to that HTTPS origin and rebuild.
+
+Create a live administrator once using `npm run admin:create` in the Render shell
+with `ADMIN_EMAIL`, `ADMIN_USERNAME`, `ADMIN_NAME` and a strong `ADMIN_PASSWORD`
+set as environment variables. Remove those bootstrap values afterwards. If an
+administrator was already provisioned directly in the hosted database, skip this
+step. Existing admin accounts are preserved. The local `12345` account is not
+copied to production. Sign in at `/admin57/log-in`.
+
+Connection URLs, passwords and local deployment notes belong only in ignored
+files or Render environment variables. Never commit them. Rotate any database
+password shared in a screenshot and update its connection URL in Render.
+
 ## Website Language
 
 The top navigation includes an English / မြန်မာ selector on desktop and mobile.

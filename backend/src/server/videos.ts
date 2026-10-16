@@ -30,6 +30,9 @@ export async function uploadVideo(
   signal?: AbortSignal,
 ) {
   await assertAdmin(actor);
+  if (process.env.RENDER === "true" && !process.env.VIDEO_STORAGE_PATH) {
+    throw new AdminError("Video uploads are unavailable until persistent video storage is configured.");
+  }
   if (!(await prisma.video.findUnique({ where: { id }, select: { id: true } })))
     throw new AdminError("Video not found.");
   if (!["video/mp4", "video/webm"].includes(mime))

@@ -57,6 +57,22 @@ test("admin management and video access (isolated local schema)", async (t) => {
       },
       include: { instructorProfile: true },
     });
+    await t.test("Render blocks uploads without persistent storage", async () => {
+      const previousRender = process.env.RENDER;
+      const previousPath = process.env.VIDEO_STORAGE_PATH;
+      process.env.RENDER = "true";
+      delete process.env.VIDEO_STORAGE_PATH;
+      try {
+        await assert.rejects(
+          uploadVideo(admin, "unused", new ReadableStream(), "video/mp4"),
+          /persistent video storage/,
+        );
+      } finally {
+        if (previousRender === undefined) delete process.env.RENDER;
+        else process.env.RENDER = previousRender;
+        process.env.VIDEO_STORAGE_PATH = previousPath;
+      }
+    });
     const input = studentSchema.parse({
       name: "Test Student",
       email: "student@example.test",

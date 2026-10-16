@@ -27,7 +27,15 @@ export default async function Page({
         </p>
       )}
       <VideoEditor key={record.id} video={record} locale={locale} courses={courses} />
-      <VideoUpload id={record.id} locale={locale} />
+      {process.env.RENDER === "true" && !process.env.VIDEO_STORAGE_PATH ? (
+        <p role="status" className="my-6 rounded-xl border border-border p-4 text-muted">
+          {locale === "my"
+            ? "ဗီဒီယိုတင်ရန် အမြဲတမ်းသိမ်းဆည်းနိုင်သော သိုလှောင်မှုကို ဦးစွာ ပြင်ဆင်ပါ။"
+            : "Video uploads will be available after persistent video storage is connected."}
+        </p>
+      ) : (
+        <VideoUpload id={record.id} locale={locale} />
+      )}
       {record.fileKey && (
         <video
           key={record.updatedAt.toISOString()}

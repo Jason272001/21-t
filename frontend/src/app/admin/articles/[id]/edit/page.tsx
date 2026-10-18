@@ -11,7 +11,7 @@ export default async function Page({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ saved?: string }>;
 }) {
-  const { user, locale, t } = await adminContext();
+  const { user, locale, t } = await adminContext("articles");
   const { id } = await params;
   const record = await prisma.article.findUnique({ where: { id }, include: { category: true } });
   if (!record) notFound();

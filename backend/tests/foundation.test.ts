@@ -35,6 +35,7 @@ test("backend foundation (isolated local PostgreSQL schema)", async (t) => {
       data: {
         email: "admin@example.test",
         role: "ADMIN",
+        adminLevel: "OWNER",
         instructorProfile: {
           create: {
             fullName: "Test Instructor",

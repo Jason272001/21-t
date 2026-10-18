@@ -43,6 +43,7 @@ test("admin management and video access (isolated local schema)", async (t) => {
         username: "admin",
         passwordHash: await bcrypt.hash(password, 12),
         role: "ADMIN",
+        adminLevel: "OWNER",
         instructorProfile: {
           create: {
             fullName: "Test",

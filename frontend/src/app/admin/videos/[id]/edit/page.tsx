@@ -11,7 +11,7 @@ export default async function Page({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ saved?: string }>;
 }) {
-  const { user, locale, t } = await adminContext();
+  const { user, locale, t } = await adminContext("videos");
   const { id } = await params;
   const record = await prisma.video.findUnique({ where: { id } });
   if (!record) notFound();

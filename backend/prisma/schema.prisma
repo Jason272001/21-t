@@ -14,6 +14,12 @@ enum Role {
   ADMIN
 }
 
+enum AdminLevel {
+  OWNER
+  MANAGER
+  STAFF
+}
+
 enum ArticleStatus {
   DRAFT
   PUBLISHED
@@ -105,6 +111,9 @@ model User {
   image           String?
   passwordHash    String?
   role            Role               @default(STUDENT)
+  adminLevel      AdminLevel?
+  issuedCodes     ClassAccessCode[]    @relation("CodeIssuer")
+  redeemedCodes   ClassAccessCode[]    @relation("CodeStudent")
   accounts        Account[]
   sessions        Session[]
   studentProfile  StudentProfile?
@@ -321,6 +330,7 @@ model ClassSchedule {
   enrollments       Enrollment[]
   announcements     ClassAnnouncement[]
   attendances       Attendance[]
+  accessCodes       ClassAccessCode[]
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 
@@ -352,6 +362,26 @@ model LoginAttempt {
   key       String   @id
   attempts  Int      @default(1)
   resetAt   DateTime
+}
+
+model ClassAccessCode {
+  id              String        @id @default(cuid())
+  digest          String        @unique
+  label           String
+  recipient       String?
+  paymentReference String?
+  classScheduleId String
+  issuedById      String
+  redeemedById    String?
+  expiresAt       DateTime
+  redeemedAt      DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime      @default(now())
+  classSchedule   ClassSchedule @relation(fields: [classScheduleId], references: [id], onDelete: Restrict)
+  issuedBy        User          @relation("CodeIssuer", fields: [issuedById], references: [id], onDelete: Restrict)
+  redeemedBy      User?         @relation("CodeStudent", fields: [redeemedById], references: [id], onDelete: SetNull)
+
+  @@index([classScheduleId, createdAt])
 }
 
 model Payment {

@@ -10,7 +10,10 @@ import { AdminError, assertAdmin } from "./admin";
 export const MAX_VIDEO_BYTES = 250 * 1024 * 1024;
 export function videoDirectory() {
   // Uploaded media is runtime data, never part of the server deployment bundle.
-  return resolve(/* turbopackIgnore: true */ process.env.VIDEO_STORAGE_PATH || join(process.cwd(), ".local-uploads", "videos"));
+  return resolve(
+    /* turbopackIgnore: true */ process.env.VIDEO_STORAGE_PATH ||
+      join(process.cwd(), ".local-uploads", "videos"),
+  );
 }
 export function videoPath(key: string) {
   if (!/^[a-f0-9-]{36}\.(mp4|webm)$/.test(key)) throw new Error("Invalid video key");
@@ -29,9 +32,11 @@ export async function uploadVideo(
   mime: string,
   signal?: AbortSignal,
 ) {
-  await assertAdmin(actor);
+  await assertAdmin(actor, "videos");
   if (process.env.RENDER === "true" && !process.env.VIDEO_STORAGE_PATH) {
-    throw new AdminError("Video uploads are unavailable until persistent video storage is configured.");
+    throw new AdminError(
+      "Video uploads are unavailable until persistent video storage is configured.",
+    );
   }
   if (!(await prisma.video.findUnique({ where: { id }, select: { id: true } })))
     throw new AdminError("Video not found.");
@@ -81,7 +86,7 @@ export async function deleteVideo(
   id: string,
   confirmation: string,
 ) {
-  await assertAdmin(actor);
+  await assertAdmin(actor, "videos");
   const key = await prisma.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT "id" FROM "Video" WHERE "id" = ${id} FOR UPDATE`;
     const video = await tx.video.findUnique({ where: { id } });

@@ -52,7 +52,15 @@ export async function enrollStudent(userId: string, input: z.infer<typeof enroll
       klass.startDate <= new Date()
     )
       throw new EnrollmentError("Enrollment for this class is closed.");
-    if (klass.currentEnrolled >= klass.maxStudents)
+    const reserved = await tx.classAccessCode.count({
+      where: {
+        classScheduleId: klass.id,
+        redeemedAt: null,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+    });
+    if (klass.currentEnrolled + reserved >= klass.maxStudents)
       throw new EnrollmentError("This class is full.");
     await tx.user.update({ where: { id: userId }, data: { name: input.fullName } });
     await tx.classSchedule.update({

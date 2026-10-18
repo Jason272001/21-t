@@ -33,6 +33,7 @@ async function main() {
       username,
       name,
       role: "ADMIN",
+      adminLevel: "OWNER",
       passwordHash: await bcrypt.hash(password, 12),
       instructorProfile: {
         create: {

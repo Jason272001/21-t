@@ -10,7 +10,7 @@ const slug = (title: string) =>
   createHash("sha256").update(title).digest("hex").slice(0, 16);
 
 export async function saveStudent(actor: Actor, input: StudentInput, id?: string) {
-  await assertAdmin(actor);
+  await assertAdmin(actor, "students");
   if (!id && !input.password) throw new AdminError("A password is required for a new student.");
   const passwordHash = input.password ? await bcrypt.hash(input.password, 12) : undefined;
   const profile = { phone: input.phone, city: input.city, country: input.country };
@@ -47,7 +47,7 @@ export async function saveStudent(actor: Actor, input: StudentInput, id?: string
   });
 }
 export async function deleteStudent(actor: Actor, id: string, confirmation: string) {
-  await assertAdmin(actor);
+  await assertAdmin(actor, "students");
   await prisma.$transaction(async (tx) => {
     const [student] = await tx.$queryRaw<
       { role: string; email: string }[]
@@ -70,7 +70,7 @@ export async function deleteStudent(actor: Actor, id: string, confirmation: stri
   });
 }
 export async function saveArticle(actor: Actor, input: ArticleInput, id?: string) {
-  await assertAdmin(actor);
+  await assertAdmin(actor, "articles");
   return prisma.$transaction(async (tx) => {
     const category = await tx.articleCategory.upsert({
       where: { slug: slug(input.category) },
@@ -101,7 +101,7 @@ export async function saveArticle(actor: Actor, input: ArticleInput, id?: string
   });
 }
 export async function saveVideo(actor: Actor, input: VideoInput, id?: string) {
-  await assertAdmin(actor);
+  await assertAdmin(actor, "videos");
   if (
     input.courseId &&
     !(await prisma.course.findUnique({ where: { id: input.courseId }, select: { id: true } }))
@@ -118,7 +118,7 @@ export async function saveVideo(actor: Actor, input: VideoInput, id?: string) {
   });
 }
 export async function deleteArticle(actor: Actor, id: string, confirmation: string) {
-  await assertAdmin(actor);
+  await assertAdmin(actor, "articles");
   const result = await prisma.article.deleteMany({ where: { id, title: confirmation } });
   if (!result.count) throw new AdminError("Type the post title to confirm deletion.");
 }

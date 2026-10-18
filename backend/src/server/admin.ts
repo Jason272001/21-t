@@ -1,23 +1,27 @@
 import { createHash, randomUUID } from "node:crypto";
 import slugify from "slugify";
 import { prisma } from "../lib/prisma";
+import { canManage, type AdminArea } from "../lib/admin-permissions";
 import { myanmarDateTime, type ClassInput, type CourseInput } from "../validators/admin";
 
 export class AdminError extends Error {}
 
 type Actor = { id: string; role: string };
 
-export async function assertAdmin(actor: Actor) {
+export async function assertAdmin(actor: Actor, area?: AdminArea) {
   const user = await prisma.user.findUnique({
     where: { id: actor.id },
-    select: { role: true, isActive: true },
+    select: { role: true, isActive: true, adminLevel: true },
   });
   if (user?.role !== "ADMIN" || !user.isActive)
     throw new AdminError("Administrator access is required.");
+  if (area && !canManage(user.adminLevel, area))
+    throw new AdminError("Your admin level does not have permission for this action.");
+  return user;
 }
 
 export async function saveCourse(actor: Actor, input: CourseInput, id?: string) {
-  await assertAdmin(actor);
+  await assertAdmin(actor, "courses");
   const instructor = await prisma.instructorProfile.findUnique({
     where: { id: input.instructorId },
     select: { id: true },
@@ -46,7 +50,7 @@ export async function saveCourse(actor: Actor, input: CourseInput, id?: string) 
 }
 
 export async function saveClass(actor: Actor, input: ClassInput, id?: string) {
-  await assertAdmin(actor);
+  await assertAdmin(actor, "classes");
   const course = await prisma.course.findUnique({
     where: { id: input.courseId },
     select: { id: true, instructorId: true, status: true },
@@ -88,6 +92,23 @@ export async function saveClass(actor: Actor, input: ClassInput, id?: string) {
     if (!existing) throw new AdminError("Class not found.");
     if (data.maxStudents < existing.currentEnrolled)
       throw new AdminError("Capacity cannot be lower than the current enrollment count.");
+    const reserved = await tx.classAccessCode.count({
+      where: {
+        classScheduleId: id,
+        redeemedAt: null,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+    });
+    if (data.maxStudents < existing.currentEnrolled + reserved)
+      throw new AdminError(
+        "Capacity cannot be lower than enrolled students plus reserved class codes.",
+      );
+    if (
+      data.courseId !== existing.courseId &&
+      (await tx.classAccessCode.count({ where: { classScheduleId: id } }))
+    )
+      throw new AdminError("The course cannot change after class codes have been issued.");
     if (data.courseId !== existing.courseId && existing.currentEnrolled > 0)
       throw new AdminError("The course cannot change after students have enrolled.");
     return tx.classSchedule.update({ where: { id }, data });

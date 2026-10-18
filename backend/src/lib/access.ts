@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "./auth";
 import { localAccountAllowed } from "../server/authenticate";
 import { prisma } from "./prisma";
+import { canManage, type AdminArea } from "./admin-permissions";
 
 export const backendConfigured = () => Boolean(process.env.DATABASE_URL && process.env.AUTH_SECRET);
 
@@ -18,6 +19,7 @@ export const getCurrentUser = cache(async () => {
       name: true,
       email: true,
       role: true,
+      adminLevel: true,
       isActive: true,
       authVersion: true,
       localOnly: true,
@@ -43,9 +45,10 @@ export async function requireUser() {
   return user;
 }
 
-export async function requireAdmin() {
+export async function requireAdmin(area?: AdminArea) {
   const user = await getCurrentUser();
   if (!user) redirect("/admin57/log-in");
   if (user.role !== "ADMIN") redirect("/student?denied=1");
+  if (area && !canManage(user.adminLevel, area)) redirect("/admin?denied=1");
   return user;
 }

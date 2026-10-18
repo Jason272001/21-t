@@ -11,7 +11,7 @@ export default async function NewClassPage({
 }: {
   searchParams: Promise<{ courseId?: string }>;
 }) {
-  const user = await requireAdmin();
+  const user = await requireAdmin("classes");
   const { locale } = await getLanguage();
   const courses = await prisma.course.findMany({
     where: { status: { not: "ARCHIVED" } },

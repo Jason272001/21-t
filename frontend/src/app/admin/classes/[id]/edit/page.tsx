@@ -5,6 +5,7 @@ import { ClassEditor } from "@/components/portal/editors";
 import { PortalShell } from "@/components/portal/shell";
 import { getLanguage } from "@/lib/i18n-server";
 import { portalCopy } from "@/lib/portal-copy";
+import { WorkspaceDelete } from "@/components/portal/workspace-editors";
 
 export default async function EditClassPage({
   params,
@@ -13,7 +14,7 @@ export default async function EditClassPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ saved?: string }>;
 }) {
-  const user = await requireAdmin();
+  const user = await requireAdmin("classes");
   const { id } = await params;
   const { locale } = await getLanguage();
   const [klass, courses] = await Promise.all([
@@ -32,6 +33,7 @@ export default async function EditClassPage({
         </p>
       )}
       <ClassEditor klass={klass} courses={courses} locale={locale} />
+      <WorkspaceDelete kind="class" id={klass.id} confirmation={klass.title} locale={locale} />
     </PortalShell>
   );
 }

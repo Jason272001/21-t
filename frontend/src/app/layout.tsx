@@ -7,6 +7,7 @@ import { brand } from "@/lib/brand";
 import { getLanguage } from "@/lib/i18n-server";
 import { cookies } from "next/headers";
 import { resolveTheme, themeCookie } from "@/lib/theme";
+import { SiteChrome } from "@/components/layout/site-chrome";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,9 +53,9 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Header locale={locale} theme={theme} />
-        {children}
-        <Footer />
+        <SiteChrome header={<Header locale={locale} theme={theme} />} footer={<Footer />}>
+          {children}
+        </SiteChrome>
       </body>
     </html>
   );

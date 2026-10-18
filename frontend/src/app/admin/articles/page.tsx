@@ -9,7 +9,7 @@ export default async function Page({
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  const { user, locale, t } = await adminContext();
+  const { user, locale, t } = await adminContext("articles");
   const params = await searchParams;
   const q = params.q?.slice(0, 100);
   const page = Math.floor(Math.max(1, Math.min(10000, Number(params.page) || 1)));

@@ -6,7 +6,7 @@ import { getLanguage } from "@/lib/i18n-server";
 import { portalCopy } from "@/lib/portal-copy";
 
 export default async function NewCoursePage() {
-  const user = await requireAdmin();
+  const user = await requireAdmin("courses");
   const { locale } = await getLanguage();
   const instructors = await prisma.instructorProfile.findMany({
     select: { id: true, fullName: true },

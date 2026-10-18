@@ -40,6 +40,7 @@ async function main() {
       email: "admin@21ct.local",
       passwordHash,
       role: "ADMIN",
+      adminLevel: "OWNER",
     },
   });
 
@@ -139,7 +140,12 @@ async function main() {
               sortOrder: 1,
               lessons: {
                 create: [
-                  { title: "Course orientation", sortOrder: 1, duration: "45 min", isPreview: true },
+                  {
+                    title: "Course orientation",
+                    sortOrder: 1,
+                    duration: "45 min",
+                    isPreview: true,
+                  },
                   { title: "Core concepts", sortOrder: 2, duration: "90 min" },
                 ],
               },

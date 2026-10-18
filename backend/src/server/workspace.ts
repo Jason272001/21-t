@@ -1,5 +1,6 @@
 import { randomBytes, createHash, randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { AdminError, assertAdmin } from "./admin";
 import type { CodeInput, TeamInput, InstructorInput } from "../validators/workspace";
@@ -22,11 +23,15 @@ export async function saveTeamMember(actor: Actor, input: TeamInput, id?: string
     if (id && target?.role !== "ADMIN") throw new AdminError("Admin account not found.");
     if (
       editor.adminLevel !== "OWNER" &&
-      (!id || target?.adminLevel !== "STAFF" || input.adminLevel !== "STAFF")
+      ((id && target?.adminLevel !== "STAFF") || input.adminLevel !== "STAFF")
     )
-      throw new AdminError("Managers can only update existing Staff accounts.");
+      throw new AdminError("Managers can only create or update Staff accounts.");
     if (id === actor.id && (!input.isActive || input.adminLevel !== editor.adminLevel))
       throw new AdminError("You cannot disable or change your own admin level.");
+    if (id === actor.id)
+      throw new AdminError(
+        "Use My account and confirm your current password to change your own account.",
+      );
     if (!id && !passwordHash) throw new AdminError("A password is required for a new admin.");
     const duplicate = await tx.user.findFirst({
       where: {
@@ -223,70 +228,76 @@ export async function revokeClassCode(actor: Actor, id: string) {
   if (!result.count) throw new AdminError("This code was already used or revoked.");
 }
 
-// For the next student-portal stage. No public redemption endpoint is exposed yet.
 export async function redeemClassCode(userId: string, code: string) {
-  return prisma.$transaction(async (tx) => {
-    const student = await tx.user.findUnique({
-      where: { id: userId },
-      include: { studentProfile: true },
-    });
-    if (!student?.isActive || student.role !== "STUDENT" || !student.studentProfile)
-      throw new AdminError("An active student account is required.");
-    const candidate = await tx.classAccessCode.findUnique({ where: { digest: digest(code) } });
-    if (!candidate) throw new AdminError("Invalid class code.");
-    await tx.$queryRaw`SELECT "id" FROM "ClassSchedule" WHERE "id" = ${candidate.classScheduleId} FOR UPDATE`;
-    const token = await tx.classAccessCode.findUniqueOrThrow({ where: { id: candidate.id } });
-    const klass = await tx.classSchedule.findUniqueOrThrow({
-      where: { id: token.classScheduleId },
-      include: { course: true },
-    });
-    if (token.revokedAt || token.redeemedAt || token.expiresAt <= new Date())
-      throw new AdminError("This class code is expired, revoked or already used.");
-    if (
-      klass.course.status !== "PUBLISHED" ||
-      !["UPCOMING", "OPEN_FOR_ENROLLMENT", "IN_PROGRESS"].includes(klass.status) ||
-      klass.endDate <= new Date() ||
-      klass.currentEnrolled >= klass.maxStudents
-    )
-      throw new AdminError("This class is no longer available.");
-    if (
-      await tx.enrollment.findUnique({
-        where: {
-          studentProfileId_classScheduleId: {
-            studentProfileId: student.studentProfile.id,
-            classScheduleId: klass.id,
-          },
-        },
-      })
-    )
-      throw new AdminError("You already have an enrollment for this class.");
-    // Conditional update also serializes with revocation; rollback restores the code on any failure.
-    const claimed = await tx.classAccessCode.updateMany({
-      where: { id: token.id, revokedAt: null, redeemedAt: null, expiresAt: { gt: new Date() } },
-      data: { redeemedAt: new Date(), redeemedById: userId },
-    });
-    if (!claimed.count) throw new AdminError("This class code is no longer available.");
-    const enrollment = await tx.enrollment.create({
-      data: {
-        studentProfileId: student.studentProfile.id,
-        classScheduleId: klass.id,
-        confirmationNumber: `21CT-${randomUUID()}`,
-        status: "CONFIRMED",
-        payments: {
-          create: {
-            method: "MANUAL",
-            status: "PAID",
-            amount: klass.price,
-            paidDate: new Date(),
-            notes: "Payment verified offline before issuing class code.",
-          },
+  return prisma.$transaction((tx) => redeemClassCodeInTransaction(tx, userId, code));
+}
+export async function redeemClassCodeInTransaction(
+  tx: Prisma.TransactionClient,
+  userId: string,
+  code: string,
+) {
+  if (!/^[A-F0-9]{24}$/.test(code.trim().toUpperCase().replaceAll("-", "")))
+    throw new AdminError("Invalid class code.");
+  const student = await tx.user.findUnique({
+    where: { id: userId },
+    include: { studentProfile: true },
+  });
+  if (!student?.isActive || student.role !== "STUDENT" || !student.studentProfile)
+    throw new AdminError("An active student account is required.");
+  const candidate = await tx.classAccessCode.findUnique({ where: { digest: digest(code) } });
+  if (!candidate) throw new AdminError("Invalid class code.");
+  await tx.$queryRaw`SELECT "id" FROM "ClassSchedule" WHERE "id" = ${candidate.classScheduleId} FOR UPDATE`;
+  const token = await tx.classAccessCode.findUniqueOrThrow({ where: { id: candidate.id } });
+  const klass = await tx.classSchedule.findUniqueOrThrow({
+    where: { id: token.classScheduleId },
+    include: { course: true },
+  });
+  if (token.revokedAt || token.redeemedAt || token.expiresAt <= new Date())
+    throw new AdminError("This class code is expired, revoked or already used.");
+  if (
+    klass.course.status !== "PUBLISHED" ||
+    !["UPCOMING", "OPEN_FOR_ENROLLMENT", "IN_PROGRESS"].includes(klass.status) ||
+    klass.endDate <= new Date() ||
+    klass.currentEnrolled >= klass.maxStudents
+  )
+    throw new AdminError("This class is no longer available.");
+  if (
+    await tx.enrollment.findUnique({
+      where: {
+        studentProfileId_classScheduleId: {
+          studentProfileId: student.studentProfile.id,
+          classScheduleId: klass.id,
         },
       },
-    });
-    await tx.classSchedule.update({
-      where: { id: klass.id },
-      data: { currentEnrolled: { increment: 1 } },
-    });
-    return enrollment;
+    })
+  )
+    throw new AdminError("You already have an enrollment for this class.");
+  // Conditional update also serializes with revocation; rollback restores the code on any failure.
+  const claimed = await tx.classAccessCode.updateMany({
+    where: { id: token.id, revokedAt: null, redeemedAt: null, expiresAt: { gt: new Date() } },
+    data: { redeemedAt: new Date(), redeemedById: userId },
   });
+  if (!claimed.count) throw new AdminError("This class code is no longer available.");
+  const enrollment = await tx.enrollment.create({
+    data: {
+      studentProfileId: student.studentProfile.id,
+      classScheduleId: klass.id,
+      confirmationNumber: `21CT-${randomUUID()}`,
+      status: "CONFIRMED",
+      payments: {
+        create: {
+          method: "MANUAL",
+          status: "PAID",
+          amount: klass.price,
+          paidDate: new Date(),
+          notes: "Payment verified offline before issuing class code.",
+        },
+      },
+    },
+  });
+  await tx.classSchedule.update({
+    where: { id: klass.id },
+    data: { currentEnrolled: { increment: 1 } },
+  });
+  return enrollment;
 }

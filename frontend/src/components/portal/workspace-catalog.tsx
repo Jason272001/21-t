@@ -68,7 +68,7 @@ export async function WorkspaceCatalog({ kind, page = 1 }: { kind: Kind; page?: 
       detail: r.email,
       badge: `${r.adminLevel === "OWNER" ? t.owner : r.adminLevel === "MANAGER" ? t.manager : t.staff} · ${r.isActive ? (locale === "en" ? "Active" : "ဖွင့်ထား") : locale === "en" ? "Disabled" : "ပိတ်ထား"}`,
     }));
-  const canCreate = kind !== "team" || user.adminLevel === "OWNER";
+  const canCreate = kind !== "team" || user.adminLevel === "OWNER" || user.adminLevel === "MANAGER";
   return (
     <PortalShell title={t[kind]} name={user.name || user.email} locale={locale} admin>
       <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
@@ -81,7 +81,15 @@ export async function WorkspaceCatalog({ kind, page = 1 }: { kind: Kind; page?: 
             className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-cyan-300 px-5 text-sm font-bold text-slate-950"
           >
             <Plus size={17} />
-            {kind === "team" ? t.newAdmin : kind === "instructors" ? t.newInstructor : t.create}
+            {kind === "team"
+              ? user.adminLevel === "OWNER"
+                ? t.newAdmin
+                : locale === "en"
+                  ? "Add Staff account"
+                  : "ဝန်ထမ်းအကောင့် ဖန်တီးရန်"
+              : kind === "instructors"
+                ? t.newInstructor
+                : t.create}
           </Link>
         )}
       </div>

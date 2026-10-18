@@ -45,6 +45,12 @@ export async function requireUser() {
   return user;
 }
 
+export async function requireStudent() {
+  const user = await requireUser();
+  if (user.role !== "STUDENT") redirect(user.role === "ADMIN" ? "/admin" : "/");
+  return user;
+}
+
 export async function requireAdmin(area?: AdminArea) {
   const user = await getCurrentUser();
   if (!user) redirect("/admin57/log-in");

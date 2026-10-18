@@ -60,7 +60,7 @@ const en = {
   status: "Status",
   actions: "Actions",
   managerHint:
-    "Managers can edit existing Staff accounts. Only Owners can create admins or change admin levels.",
+    "Managers can create and edit Staff accounts. Only Owners can create Managers or Owners and change admin levels.",
 };
 const my: typeof en = {
   workspace: "စီမံခန့်ခွဲရေး",
@@ -123,6 +123,6 @@ const my: typeof en = {
   status: "အခြေအနေ",
   actions: "လုပ်ဆောင်ချက်များ",
   managerHint:
-    "မန်နေဂျာသည် ရှိပြီးသားဝန်ထမ်းအကောင့်ကိုသာ ပြင်နိုင်သည်။ စီမံသူအသစ်နှင့် အဆင့်များကို ပိုင်ရှင်သာ စီမံနိုင်သည်။",
+    "မန်နေဂျာသည် ဝန်ထမ်းအကောင့် ဖန်တီး၊ ပြင်ဆင်နိုင်သည်။ မန်နေဂျာ၊ ပိုင်ရှင်အဆင့်များကို ပိုင်ရှင်သာ ဖန်တီးနိုင်သည်။",
 };
 export const workspaceCopy = (locale: Locale) => (locale === "my" ? my : en);

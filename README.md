@@ -51,9 +51,9 @@ moving the project or copying the local database directory.
 - Schedule a class with dates, times, capacity, price, and enrollment deadline.
   Dates and times use **Asia/Yangon (UTC+06:30)**.
 - Draft classes stay private. Select **Open for enrollment** to accept students.
-- `/register`: creates student accounts only; passwords require 12 characters.
+- `/register`: creates a student account and confirms its first class atomically; a valid class code is required and passwords require 12 characters.
 - `/portal`: routes signed-in admins to `/admin` and other users to `/student`.
-- `/student`: shows only the signed-in student's enrollments and confirmations.
+- `/student`: dedicated bilingual student dashboard with class details, course materials, announcements and authorized videos. `/student/join` redeems another class code using the existing account.
 - Enrollment requires sign-in, checks publication/deadline/capacity, prevents
   duplicates, and reserves seats transactionally. Free classes are confirmed;
   paid classes await payment. Payment collection/confirmation is not yet built.
@@ -96,7 +96,7 @@ moving the project or copying the local database directory.
   when `AUTH_URL` points at a hosted domain. Provision a strong live admin account
   separately before deployment.
 
-Quizzes/tests, progress tracking, event publishing, student class-code redemption screens,
+Quizzes/tests, progress tracking, event publishing,
 student self-service password recovery and email verification
 remain future stages. Footer links for some future pages still lead to missing routes.
 
@@ -106,15 +106,15 @@ The `/admin` area has its own responsive navigation and English/Burmese and
 light/dark controls. Public website navigation and the public footer are hidden
 on admin routes. Your existing `admin` account is migrated to **Owner**.
 
-| Level   | Permissions                                                                                      |
-| ------- | ------------------------------------------------------------------------------------------------ |
-| Owner   | Students, courses, schedules, instructors, blog/articles, videos, class codes and admin accounts |
-| Manager | Students and blog/articles; edit existing Staff accounts only                                    |
-| Staff   | Students and blog/articles only                                                                  |
+| Level   | Permissions                                                                                                   |
+| ------- | ------------------------------------------------------------------------------------------------------------- |
+| Owner   | Students, courses, schedules, instructors, blog/articles, videos, class codes and admin accounts              |
+| Manager | All learning content and class codes; create and edit Staff accounts only                                     |
+| Staff   | Students, courses, schedules, instructors, blog/articles, videos and class codes; no admin account management |
 
-Managers cannot create or delete admin accounts or change their levels. Owners
+Managers cannot create Managers/Owners, edit those levels, or delete admin accounts. Owners
 cannot disable, demote or delete themselves. Account changes invalidate existing
-sessions. All mutation services recheck privileges in PostgreSQL; hiding a tab is
+sessions. All administrators can update their own name, email, username and password at `/admin/account` after confirming their current password. Saving signs out all their sessions. All mutation services recheck privileges in PostgreSQL; hiding a tab is
 not the authorization boundary. Referenced courses/classes/instructors/admins
 cannot be deleted when doing so would erase history; archive, cancel, reassign or
 disable them instead.
@@ -127,13 +127,12 @@ only its SHA-256 digest and a short label are stored. Each unused, unexpired cod
 reserves one seat. Revoke an unused code to release that reservation. Codes cannot
 be moved between courses; class capacity edits include their reservations.
 
-The admin code-generation and revocation UI is available now. Student registration
-with a required code and an existing-account “join another class” screen are a
-separate next stage. No public code-redemption endpoint has been added. The tested
-backend redemption transaction already enforces one use, revocation, expiry,
-capacity and class/course scope, creates a confirmed enrollment with a manually
-paid payment record, and allows the same student account to join another class.
-It must be called with the authenticated student's ID when that screen is built.
+New students enter their first code at /register. Account creation and redemption
+share a transaction, so an invalid, expired, revoked or used code leaves no account.
+Existing students sign in and use **Join a class** at /student/join; they do not
+create another account. Redemption checks one use, expiry, capacity and class/course
+scope, creates a confirmed enrollment and a manually paid payment record, and
+redirects into that class. No online payment processing is involved.
 
 ## Checks
 

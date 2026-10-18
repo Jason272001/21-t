@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   X,
+  Settings,
 } from "lucide-react";
 import { canManage, type AdminArea } from "@backend/lib/admin-permissions";
 import { logoutAction } from "@backend/actions/account";
@@ -42,6 +43,11 @@ export function AdminFrame({
   const [open, setOpen] = useState(false);
   const links = [
     { href: "/admin", label: t.dashboard, icon: LayoutDashboard },
+    {
+      href: "/admin/account",
+      label: locale === "en" ? "My account" : "ကျွန်ုပ်၏အကောင့်",
+      icon: Settings,
+    },
     ...(
       [
         ["students", t.students, Users],

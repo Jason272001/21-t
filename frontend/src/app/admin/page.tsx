@@ -9,6 +9,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { requireAdmin } from "@backend/lib/access";
+import { canManage } from "@backend/lib/admin-permissions";
 import { prisma } from "@backend/lib/prisma";
 import { getLanguage } from "@/lib/i18n-server";
 import { workspaceCopy } from "@/lib/workspace-copy";
@@ -21,13 +22,13 @@ export default async function AdminPage({
   const user = await requireAdmin(),
     { locale } = await getLanguage(),
     t = workspaceCopy(locale),
-    owner = user.adminLevel === "OWNER";
+    content = canManage(user.adminLevel, "courses");
   const [students, articles, courses, classes, codes, staff] = await Promise.all([
     prisma.user.count({ where: { role: "STUDENT" } }),
     prisma.article.count(),
-    owner ? prisma.course.count() : 0,
-    owner ? prisma.classSchedule.count() : 0,
-    owner
+    content ? prisma.course.count() : 0,
+    content ? prisma.classSchedule.count() : 0,
+    content
       ? prisma.classAccessCode.count({
           where: { revokedAt: null, redeemedAt: null, expiresAt: { gt: new Date() } },
         })
@@ -39,7 +40,7 @@ export default async function AdminPage({
   const metrics = [
     { label: t.students, value: students, href: "students", icon: Users },
     { label: t.articles, value: articles, href: "articles", icon: FileText },
-    ...(owner
+    ...(content
       ? [
           { label: t.courses, value: courses, href: "courses", icon: BookOpen },
           { label: t.classes, value: classes, href: "classes", icon: CalendarDays },
@@ -68,7 +69,7 @@ export default async function AdminPage({
           : "သတင်းနှင့် ဆောင်းပါးများ ရေးသားပါ။",
       icon: FileText,
     },
-    ...(owner
+    ...(content
       ? [
           {
             label: t.codes,
@@ -161,7 +162,7 @@ export default async function AdminPage({
           </Link>
         ))}
       </div>
-      {owner && (
+      {content && (
         <div className="mt-7 flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-accent/20 bg-accent/5 p-6">
           <div>
             <p className="text-sm font-semibold">

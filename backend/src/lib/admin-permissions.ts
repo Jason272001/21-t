@@ -3,7 +3,7 @@ export type AdminArea =
   "students" | "articles" | "courses" | "classes" | "instructors" | "codes" | "team" | "videos";
 export function canManage(level: string | null | undefined, area: AdminArea) {
   if (level === "OWNER") return true;
-  if (level === "MANAGER") return ["students", "articles", "team"].includes(area);
-  if (level === "STAFF") return ["students", "articles"].includes(area);
+  if (level === "MANAGER") return true;
+  if (level === "STAFF") return area !== "team";
   return false;
 }

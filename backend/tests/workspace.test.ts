@@ -38,6 +38,7 @@ test("admin levels, catalog CRUD and single-use class codes (isolated schema)", 
   const { enrollmentSchema } = await import("../src/validators/forms");
   const { saveStudent, deleteStudent, saveArticle, deleteArticle, saveVideo } =
     await import("../src/server/management");
+  const { deleteVideo } = await import("../src/server/videos");
   try {
     const owner = await prisma.user.create({
       data: { email: "owner@example.test", username: "admin", role: "ADMIN", adminLevel: "OWNER" },
@@ -118,44 +119,53 @@ test("admin levels, catalog CRUD and single-use class codes (isolated schema)", 
         expiresDays: 30,
       });
 
-    await t.test("Staff can manage students and blog posts but not privileged areas", async () => {
-      const record = await saveStudent(staff, studentInput("staff-created"));
-      await saveStudent(
-        staff,
-        { ...studentInput("staff-created"), name: "Edited student", password: "" },
-        record.id,
-      );
-      await deleteStudent(staff, record.id, "staff-created@example.test");
-      const post = await saveArticle(
-        staff,
-        articleSchema.parse({
-          title: "Staff article",
-          category: "Updates",
-          excerpt: "A practical update for students",
-          content: "A useful practical update for all students on the website.",
-          status: "DRAFT",
-        }),
-      );
-      await deleteArticle(staff, post.id, "Staff article");
-      for (const area of ["courses", "classes", "instructors", "codes", "team", "videos"] as const)
-        await assert.rejects(assertAdmin(staff, area), /permission/);
-      await assert.rejects(saveCourse(staff, courseInput), /permission/);
-      await assert.rejects(saveClass(staff, classInput), /permission/);
-      await assert.rejects(saveInstructor(staff, instructorInput), /permission/);
-      await assert.rejects(issueClassCode(staff, issueInput()), /permission/);
-      await assert.rejects(
-        saveVideo(staff, {
-          title: "Forbidden video",
+    await t.test(
+      "Staff can manage all learning content but cannot manage admin accounts",
+      async () => {
+        const record = await saveStudent(staff, studentInput("staff-created"));
+        await saveStudent(
+          staff,
+          { ...studentInput("staff-created"), name: "Edited student", password: "" },
+          record.id,
+        );
+        await deleteStudent(staff, record.id, "staff-created@example.test");
+        const post = await saveArticle(
+          staff,
+          articleSchema.parse({
+            title: "Staff article",
+            category: "Updates",
+            excerpt: "A practical update for students",
+            content: "A useful practical update for all students on the website.",
+            status: "DRAFT",
+          }),
+        );
+        await deleteArticle(staff, post.id, "Staff article");
+        for (const area of ["courses", "classes", "instructors", "codes", "videos"] as const)
+          await assertAdmin(staff, area);
+        await assert.rejects(assertAdmin(staff, "team"), /permission/);
+        const c = await saveCourse(staff, { ...courseInput, title: "Staff course" });
+        await deleteWorkspaceRecord(staff, "course", c.id, "Staff course");
+        const k = await saveClass(staff, { ...classInput, title: "Staff class" });
+        await deleteWorkspaceRecord(staff, "class", k.id, "Staff class");
+        const i = await saveInstructor(staff, {
+          ...instructorInput,
+          email: "staff-instructor@example.test",
+        });
+        await deleteWorkspaceRecord(staff, "instructor", i.id, instructorInput.fullName);
+        const token = await issueClassCode(staff, issueInput());
+        await revokeClassCode(staff, token.id);
+        const v = await saveVideo(staff, {
+          title: "Staff video",
           description: "",
           status: "DRAFT",
           audience: "STUDENTS",
           courseId: "",
-        }),
-        /permission/,
-      );
-    });
+        });
+        await deleteVideo(staff, v.id, "Staff video");
+      },
+    );
     await t.test(
-      "Managers edit existing Staff only and cannot create or promote admins",
+      "Managers can create Staff but cannot create Managers or promote Staff",
       async () => {
         const before = await prisma.user.findUniqueOrThrow({ where: { id: staffId } });
         await saveTeamMember(
@@ -167,17 +177,19 @@ test("admin levels, catalog CRUD and single-use class codes (isolated schema)", 
           (await prisma.user.findUniqueOrThrow({ where: { id: staffId } })).authVersion,
           before.authVersion + 1,
         );
-        await assert.rejects(
-          saveTeamMember(manager, member("STAFF", "anotherstaff")),
-          /existing Staff/,
+        const created = await saveTeamMember(manager, member("STAFF", "anotherstaff"));
+        assert.equal(
+          (await prisma.user.findUniqueOrThrow({ where: { id: created.id } })).adminLevel,
+          "STAFF",
         );
+        await assert.rejects(saveTeamMember(manager, member("MANAGER", "anothermanager")), /Staff/);
         await assert.rejects(
           saveTeamMember(manager, { ...member("STAFF"), adminLevel: "OWNER" }, staffId),
-          /existing Staff/,
+          /Staff/,
         );
         await assert.rejects(
           saveTeamMember(manager, { ...member("MANAGER"), name: "Attempt" }, owner.id),
-          /existing Staff/,
+          /Staff/,
         );
         await assert.rejects(
           deleteWorkspaceRecord(manager, "team", staffId, "staff@example.test"),

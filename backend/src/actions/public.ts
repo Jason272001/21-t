@@ -1,44 +1,32 @@
 "use server";
 
-import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "../lib/prisma";
 import { requireUser, backendConfigured } from "../lib/access";
 import { enrollStudent, EnrollmentError } from "../server/enrollment";
-import {
-  contactSchema,
-  enrollmentSchema,
-  newsletterSchema,
-  registerSchema,
-} from "../validators/forms";
+import { contactSchema, enrollmentSchema, newsletterSchema } from "../validators/forms";
 import { emailTemplates, sendEmail, escapeHtml } from "../server/email";
+import { studentRegistrationSchema } from "../validators/account";
+import { registerStudent } from "../server/student";
+import { AdminError } from "../server/admin";
+import { allowLogin } from "../server/login-limit";
 
 export type ActionState = { ok: boolean; message: string };
 
 export async function registerAction(_: ActionState, formData: FormData): Promise<ActionState> {
   if (!backendConfigured())
     return { ok: false, message: "Account registration is not configured yet." };
-  const parsed = registerSchema.safeParse(Object.fromEntries(formData));
+  const parsed = studentRegistrationSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success)
     return { ok: false, message: parsed.error.issues[0]?.message || "Invalid data" };
 
-  const existing = await prisma.user.findFirst({
-    where: { email: { equals: parsed.data.email, mode: "insensitive" } },
-  });
-  if (existing) return { ok: false, message: "This email is already registered." };
+  if (!(await allowLogin(`register:${parsed.data.email}`)))
+    return { ok: false, message: "Too many attempts. Try again in 15 minutes." };
 
   try {
-    const user = await prisma.user.create({
-      data: {
-        name: parsed.data.name,
-        email: parsed.data.email,
-        passwordHash: await bcrypt.hash(parsed.data.password, 12),
-        role: "STUDENT",
-        studentProfile: { create: {} },
-      },
-    });
+    const user = await registerStudent(parsed.data);
     await sendEmail({ to: user.email, ...emailTemplates.welcome(user.name || "Student") }).catch(
       () => console.warn("Welcome email could not be sent."),
     );
@@ -46,9 +34,11 @@ export async function registerAction(_: ActionState, formData: FormData): Promis
     return {
       ok: false,
       message:
-        error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002"
-          ? "This email is already registered."
-          : "Could not create your account. Please try again.",
+        error instanceof AdminError
+          ? error.message
+          : error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002"
+            ? "This email is already registered."
+            : "Could not create your account. Please try again.",
     };
   }
   redirect("/login?registered=1");

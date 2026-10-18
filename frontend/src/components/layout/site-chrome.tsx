@@ -10,7 +10,12 @@ export function SiteChrome({
   children: React.ReactNode;
 }) {
   const path = usePathname();
-  const admin = path === "/admin" || path.startsWith("/admin/") || path.startsWith("/admin57/");
+  const admin =
+    path === "/admin" ||
+    path.startsWith("/admin/") ||
+    path.startsWith("/admin57/") ||
+    path === "/student" ||
+    path.startsWith("/student/");
   return (
     <>
       {!admin && header}

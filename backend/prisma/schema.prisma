@@ -235,6 +235,10 @@ model Article {
   seoDescription String?
   ogImage        String?
   views          Int             @default(0)
+  thumbsUp       Int             @default(0)
+  thumbsDown     Int             @default(0)
+  image          ArticleImage?
+  comments       ArticleComment[]
   category       ArticleCategory @relation(fields: [categoryId], references: [id])
   tags           ArticleTag[]    @relation("ArticleTags")
   author         User            @relation("ArticleAuthor", fields: [authorId], references: [id])
@@ -243,6 +247,24 @@ model Article {
 
   @@index([status, featured, publishedAt])
   @@index([categoryId])
+}
+
+model ArticleImage {
+  articleId String @id
+  data Bytes
+  mediaType String
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+}
+
+// Anonymous discussion: no account, IP address, cookie ID or browser fingerprint.
+model ArticleComment {
+  id String @id @default(cuid())
+  articleId String
+  body String @db.Text
+  createdAt DateTime @default(now())
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId, createdAt, id])
 }
 
 model CourseCategory {

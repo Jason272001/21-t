@@ -1,10 +1,10 @@
-import bcrypt from "bcryptjs";
+import { hashPassword } from "./passwords";
 import { prisma } from "../lib/prisma";
 import { AdminError } from "./admin";
 import { redeemClassCodeInTransaction } from "./workspace";
 import type { StudentRegistrationInput } from "../validators/account";
 export async function registerStudent(input: StudentRegistrationInput) {
-  const passwordHash = await bcrypt.hash(input.password, 12);
+  const passwordHash = await hashPassword(input.password);
   return prisma.$transaction(async (tx) => {
     if (await tx.user.findFirst({ where: { email: { equals: input.email, mode: "insensitive" } } }))
       throw new AdminError(

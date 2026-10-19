@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { verifyPassword } from "./passwords";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { allowLogin } from "./login-limit";
@@ -36,7 +36,7 @@ export async function authenticate(credentials: unknown, role: "ADMIN" | "STUDEN
     (user.localOnly && !localAccountAllowed())
   )
     return null;
-  if (!(await bcrypt.compare(parsed.data.password, user.passwordHash))) return null;
+  if (!(await verifyPassword(parsed.data.password, user.passwordHash))) return null;
   return {
     id: user.id,
     name: user.name,

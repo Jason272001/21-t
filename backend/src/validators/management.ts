@@ -19,6 +19,23 @@ export const studentSchema = z.object({
 });
 export const articleSchema = z.object({
   title: z.string().trim().min(3).max(180),
+  tags: z
+    .string()
+    .max(500)
+    .default("")
+    .transform((value) => [
+      ...new Set(
+        value
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+      ),
+    ])
+    .pipe(z.array(z.string().max(40)).max(10)),
+  removeImage: z
+    .string()
+    .optional()
+    .transform((value) => value === "on"),
   category: z.string().trim().min(2).max(100),
   excerpt: z.string().trim().min(10).max(1000),
   content: z.string().trim().min(20).max(100000),

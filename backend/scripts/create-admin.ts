@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { hashPassword } from "../src/server/passwords";
 import { randomUUID } from "node:crypto";
 
 const db = new PrismaClient();
@@ -34,7 +34,7 @@ async function main() {
       name,
       role: "ADMIN",
       adminLevel: "OWNER",
-      passwordHash: await bcrypt.hash(password, 12),
+      passwordHash: await hashPassword(password),
       instructorProfile: {
         create: {
           fullName: name,

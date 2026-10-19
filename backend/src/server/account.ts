@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { hashPassword, verifyPassword } from "./passwords";
 import { prisma } from "../lib/prisma";
 import { AdminError } from "./admin";
 import { allowLogin } from "./login-limit";
@@ -11,7 +11,7 @@ export async function updateOwnAdminAccount(userId: string, input: AccountInput)
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user?.isActive || user.role !== "ADMIN" || !user.passwordHash)
       throw new AdminError("An active administrator account is required.");
-    if (!(await bcrypt.compare(input.currentPassword, user.passwordHash)))
+    if (!(await verifyPassword(input.currentPassword, user.passwordHash)))
       throw new AdminError("Your current password is incorrect.");
     if (
       await tx.user.findFirst({
@@ -32,7 +32,7 @@ export async function updateOwnAdminAccount(userId: string, input: AccountInput)
         name: input.name,
         email: input.email,
         username: input.username,
-        ...(input.newPassword ? { passwordHash: await bcrypt.hash(input.newPassword, 12) } : {}),
+        ...(input.newPassword ? { passwordHash: await hashPassword(input.newPassword) } : {}),
         authVersion: { increment: 1 },
       },
       select: { id: true },

@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { hashPassword } from "../src/server/passwords";
 import { PrismaClient } from "@prisma/client";
 import {
   articleCategories,
@@ -33,7 +33,7 @@ async function main() {
   await prisma.siteSetting.deleteMany();
   await prisma.user.deleteMany();
 
-  const passwordHash = await bcrypt.hash("Admin@21CT", 12);
+  const passwordHash = await hashPassword("Admin@21CT-Demo");
   const admin = await prisma.user.create({
     data: {
       name: "21CT Admin",
@@ -91,7 +91,7 @@ async function main() {
       data: {
         name: instructor.fullName,
         email: `${instructor.slug}@21ct.local`,
-        passwordHash: await bcrypt.hash("Instructor@21CT", 12),
+        passwordHash: await hashPassword("Instructor@21CT"),
         role: "INSTRUCTOR",
       },
     });
@@ -198,7 +198,7 @@ async function main() {
       data: {
         name: `Student ${i + 1}`,
         email: `student${i + 1}@21ct.local`,
-        passwordHash: await bcrypt.hash("Student@21CT", 12),
+        passwordHash: await hashPassword("Student@21CT"),
         role: "STUDENT",
         studentProfile: {
           create: {

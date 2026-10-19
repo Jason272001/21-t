@@ -61,6 +61,15 @@ moving the project or copying the local database directory.
   actions verify the current database role rather than trusting the session role.
 - With no email API key, email notifications are logged locally, not delivered.
 
+## Password storage
+
+All student/admin creation, resets and self-service changes use the shared
+backend/src/server/passwords.ts helper: bcrypt with a fresh random salt and cost 12. Authentication compares hashes; plaintext passwords are never persisted.
+New passwords require at least 12 characters and at most 72 UTF-8 bytes; oversized
+login input is rejected instead of silently truncated. Existing hashes remain valid.
+Hashing does not make a weak existing password strong: change temporary passwords
+through My account. Session version checks invalidate old sessions after changes.
+
 ## Student, blog and video management
 
 - Admin login: `/admin57/log-in` (unlisted in public navigation, marked noindex).
@@ -73,8 +82,21 @@ moving the project or copying the local database directory.
 - Deletion requires typing the student's email, permanently removes that
   student's enrollment/payment/attendance records, and releases occupied seats.
   Use **Account enabled** to disable access while retaining history instead.
-- `/admin/articles`: write, edit, publish, unpublish and delete blog posts. Public
-  posts appear at `/articles`. Draft posts and draft metadata are private.
+- /admin/articles: write, edit, publish, unpublish and delete blog posts with titles,
+  comma-separated tags and cover pictures (JPEG/PNG/WebP, up to 2 MB). Pictures
+  live in PostgreSQL so they persist across Vercel redeployments. Replacing or
+  removing a picture updates the public article and cards. Draft images stay
+  private to administrators. Video files are still separate from this storage.
+- Public articles support anonymous comments (2,000 characters) and thumbs up/down.
+  Discussion writes store no names, emails, user links, IP addresses, user agents,
+  cookies or fingerprints. Comments store text, timestamp and internal article/record
+  IDs. Reactions store only aggregate totals; repeated voting after reload is
+  possible because there is no visitor tracking or unique-person count.
+- A shared limit of 20 comments per article per minute and a hidden honeypot
+  contain comment bursts without identifying visitors. Admins may remove comments
+  in the post editor. Comment text is rendered as text, never executable HTML.
+  Hosting/network providers may retain request logs outside the application's
+  discussion database; this feature cannot promise anonymity from those providers.
 - `/admin/videos`: save video details as a draft, upload an MP4/WebM file (up to
   250 MB), then publish. Files can be replaced and posts edited or deleted.
   MP4 with H.264/AAC works across common browsers. This stage does not transcode

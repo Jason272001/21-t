@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Clock, User } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -10,6 +11,7 @@ type ArticleCardProps = {
     excerpt: string;
     readingTime: number;
     featured?: boolean;
+    featuredImage?: string | null;
     category?: { name: string };
     author?: { name: string | null };
   };
@@ -21,6 +23,20 @@ export async function ArticleCard({ article }: ArticleCardProps) {
   } = await getLanguage();
   return (
     <article className="rounded-lg border border-line/10 bg-surface p-5 shadow-xl shadow-card-shadow transition hover:-translate-y-1 hover:border-cyan-300/40">
+      {article.featuredImage && (
+        <Link href={`/articles/${article.slug}`} className="mb-5 block">
+          <Image
+            unoptimized
+            width={1200}
+            height={675}
+            src={article.featuredImage}
+            alt={article.title}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className="aspect-video w-full rounded-lg object-cover"
+          />
+        </Link>
+      )}
       <div className="mb-4 flex items-center justify-between gap-3">
         <StatusBadge label={article.category?.name || common.article} />
         {article.featured ? <StatusBadge label={common.featured} tone="orange" /> : null}

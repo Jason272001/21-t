@@ -14,6 +14,7 @@ import {
 import { deleteVideo } from "../server/videos";
 import { studentSchema, articleSchema, videoSchema } from "../validators/management";
 import type { ActionState } from "./public";
+import { readArticlePicture } from "../server/article-images";
 function errorState(error: unknown): ActionState {
   return {
     ok: false,
@@ -69,7 +70,9 @@ export async function saveArticleAction(
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0].message };
   let saved;
   try {
-    saved = await saveArticle(actor, parsed.data, id || undefined);
+    const file = form.get("picture");
+    const picture = file instanceof File ? await readArticlePicture(file) : undefined;
+    saved = await saveArticle(actor, parsed.data, id || undefined, picture);
   } catch (error) {
     return errorState(error);
   }

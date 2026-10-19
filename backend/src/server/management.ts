@@ -1,18 +1,21 @@
-import bcrypt from "bcryptjs";
+import { hashPassword } from "./passwords";
 import { createHash, randomUUID } from "node:crypto";
 import slugify from "slugify";
 import { prisma } from "../lib/prisma";
 import { AdminError, assertAdmin } from "./admin";
 import type { StudentInput, ArticleInput, VideoInput } from "../validators/management";
+import type { ArticlePicture } from "./article-images";
 type Actor = { id: string; role: string };
 const slug = (title: string) =>
   slugify(title, { lower: true, strict: true }).slice(0, 70) ||
   createHash("sha256").update(title).digest("hex").slice(0, 16);
+const tagSlug = (name: string) =>
+  `${slug(name).slice(0, 50)}-${createHash("sha256").update(name.normalize("NFKC").toLowerCase()).digest("hex").slice(0, 12)}`;
 
 export async function saveStudent(actor: Actor, input: StudentInput, id?: string) {
   await assertAdmin(actor, "students");
   if (!id && !input.password) throw new AdminError("A password is required for a new student.");
-  const passwordHash = input.password ? await bcrypt.hash(input.password, 12) : undefined;
+  const passwordHash = input.password ? await hashPassword(input.password) : undefined;
   const profile = { phone: input.phone, city: input.city, country: input.country };
   return prisma.$transaction(async (tx) => {
     if (id) {
@@ -69,7 +72,12 @@ export async function deleteStudent(actor: Actor, id: string, confirmation: stri
     await tx.user.delete({ where: { id } });
   });
 }
-export async function saveArticle(actor: Actor, input: ArticleInput, id?: string) {
+export async function saveArticle(
+  actor: Actor,
+  input: ArticleInput,
+  id?: string,
+  picture?: ArticlePicture,
+) {
   await assertAdmin(actor, "articles");
   return prisma.$transaction(async (tx) => {
     const category = await tx.articleCategory.upsert({
@@ -86,10 +94,17 @@ export async function saveArticle(actor: Actor, input: ArticleInput, id?: string
       categoryId: category.id,
       status: input.status,
       featured: input.featured,
+      tags: {
+        ...(id ? { set: [] } : {}),
+        connectOrCreate: input.tags.map((name) => ({
+          where: { slug: tagSlug(name) },
+          create: { name, slug: tagSlug(name) },
+        })),
+      },
       readingTime: Math.max(1, Math.ceil(input.content.split(/\s+/).length / 200)),
       publishedAt: input.status === "PUBLISHED" ? previous?.publishedAt || new Date() : null,
     };
-    return id
+    const saved = id
       ? tx.article.update({ where: { id }, data })
       : tx.article.create({
           data: {
@@ -98,6 +113,22 @@ export async function saveArticle(actor: Actor, input: ArticleInput, id?: string
             slug: `${slug(input.title)}-${randomUUID().slice(0, 8)}`,
           },
         });
+    const record = await saved;
+    if (picture) {
+      await tx.articleImage.upsert({
+        where: { articleId: record.id },
+        create: { articleId: record.id, ...picture },
+        update: picture,
+      });
+      await tx.article.update({
+        where: { id: record.id },
+        data: { featuredImage: `/api/articles/${record.id}/image` },
+      });
+    } else if (input.removeImage) {
+      await tx.articleImage.deleteMany({ where: { articleId: record.id } });
+      await tx.article.update({ where: { id: record.id }, data: { featuredImage: null } });
+    }
+    return record;
   });
 }
 export async function saveVideo(actor: Actor, input: VideoInput, id?: string) {

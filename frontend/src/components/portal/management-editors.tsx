@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Article, Video, StudentProfile } from "@prisma/client";
 import { ActionForm } from "@/components/forms/action-form";
 import {
@@ -153,7 +154,7 @@ export function ArticleEditor({
   article,
   locale,
 }: {
-  article?: Article & { category: { name: string } };
+  article?: Article & { category: { name: string }; tags: { name: string }[] };
   locale: Locale;
 }) {
   const t = managementCopy(locale);
@@ -165,6 +166,48 @@ export function ArticleEditor({
         submitLabel={t.save}
       >
         <Input name="title" label={t.title} value={article?.title} required />
+        <Input
+          name="tags"
+          label={locale === "en" ? "Tags" : "တဂ်များ"}
+          value={article?.tags.map((tag) => tag.name).join(", ")}
+          hint={
+            locale === "en"
+              ? "Separate with commas. Up to 10 tags, 40 characters each."
+              : "ကော်မာဖြင့် ခွဲပါ။ တဂ် ၁၀ ခုအထိ၊ တစ်ခုလျှင် စာလုံး ၄၀ အထိ။"
+          }
+        />
+        <label className="grid gap-2 text-sm font-semibold">
+          {locale === "en" ? "Cover picture" : "မျက်နှာဖုံးပုံ"}
+          <input
+            name="picture"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className={inputClass}
+          />
+          <span className="text-xs font-normal text-subtle">
+            {locale === "en"
+              ? "JPEG, PNG or WebP, up to 2 MB. Leave empty to keep the current image."
+              : "JPEG၊ PNG သို့မဟုတ် WebP၊ ၂ MB အထိ။ လက်ရှိပုံကို ဆက်သုံးရန် အလွတ်ထားပါ။"}
+          </span>
+        </label>
+        {article?.featuredImage && (
+          <div className="grid gap-3">
+            <Image
+              unoptimized
+              width={1200}
+              height={675}
+              src={article.featuredImage}
+              alt={article.title}
+              referrerPolicy="no-referrer"
+              className="max-h-64 rounded-xl object-contain"
+            />
+
+            <label className="flex gap-3 text-sm">
+              <input type="checkbox" name="removeImage" />
+              {locale === "en" ? "Remove current picture" : "လက်ရှိပုံကို ဖယ်ရှားရန်"}
+            </label>
+          </div>
+        )}
         <Input name="category" label={t.category} value={article?.category.name} required />
         <Area name="excerpt" label={t.excerpt} value={article?.excerpt} required />
         <Area name="content" label={t.content} value={article?.content} required rows={14} />

@@ -1,5 +1,5 @@
 import { randomBytes, createHash, randomUUID } from "node:crypto";
-import bcrypt from "bcryptjs";
+import { hashPassword } from "./passwords";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { AdminError, assertAdmin } from "./admin";
@@ -8,7 +8,7 @@ type Actor = { id: string; role: string };
 
 export async function saveTeamMember(actor: Actor, input: TeamInput, id?: string) {
   await assertAdmin(actor, "team");
-  const passwordHash = input.password ? await bcrypt.hash(input.password, 12) : undefined;
+  const passwordHash = input.password ? await hashPassword(input.password) : undefined;
   return prisma.$transaction(async (tx) => {
     // Serialize account/level changes, then re-read privileges under the lock.
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(210018)`;

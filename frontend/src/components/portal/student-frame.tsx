@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LogOut,
   ArrowUpRight,
+  Settings,
 } from "lucide-react";
 import { LanguageSelector } from "@/components/layout/language-selector";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -34,6 +35,11 @@ export function StudentFrame({
     { href: "/student/classes", label: t.classes, icon: CalendarDays },
     { href: "/student/videos", label: t.videos, icon: Video },
     { href: "/student/join", label: t.join, icon: KeyRound },
+    {
+      href: "/student/account",
+      label: locale === "en" ? "My account" : "ကျွန်ုပ်၏အကောင့်",
+      icon: Settings,
+    },
   ];
   return (
     <div className="min-h-screen bg-page text-foreground">

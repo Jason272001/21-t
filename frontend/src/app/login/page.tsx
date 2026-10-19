@@ -8,7 +8,7 @@ import { portalCopy } from "@/lib/portal-copy";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ registered?: string }>;
+  searchParams: Promise<{ registered?: string; updated?: string }>;
 }) {
   const user = await getCurrentUser();
   if (user) redirect(portalPath(user.role));
@@ -28,6 +28,13 @@ export default async function LoginPage({
             {t.registered}
           </p>
         ) : null}
+        {params.updated && (
+          <p role="status" className="mt-4 text-accent">
+            {locale === "en"
+              ? "Password changed. Sign in with your new password."
+              : "စကားဝှက် ပြောင်းပြီးပါပြီ။ စကားဝှက်အသစ်ဖြင့် ပြန်ဝင်ပါ။"}
+          </p>
+        )}
         {backendConfigured() ? (
           <LoginForm locale={locale} />
         ) : (

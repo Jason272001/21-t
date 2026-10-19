@@ -21,8 +21,8 @@ export default async function AdminLogin({
         {(await searchParams).updated && (
           <p role="status" className="mt-5 text-sm leading-7 text-success">
             {locale === "en"
-              ? "Account updated. Sign in with your current username or email and password."
-              : "အကောင့်ပြင်ပြီးပါပြီ။ လက်ရှိအသုံးပြုသူအမည် သို့မဟုတ် အီးမေးလ်နှင့် စကားဝှက်ဖြင့် ပြန်ဝင်ပါ။"}
+              ? "Password changed. Sign in with your new password."
+              : "စကားဝှက် ပြောင်းပြီးပါပြီ။ စကားဝှက်အသစ်ဖြင့် ပြန်ဝင်ပါ။"}
           </p>
         )}
         {backendConfigured() ? (

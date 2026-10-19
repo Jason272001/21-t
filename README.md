@@ -68,7 +68,7 @@ backend/src/server/passwords.ts helper: salted scrypt (N=32768, r=8, p=3, 64-byt
 Usernames accept uppercase letters, spaces and symbols (3–32 characters); they are normalized to lowercase for case-insensitive sign-in. Password case and characters are preserved exactly. Account validation errors identify the affected field.
 
 The eye button on login, registration and account forms shows/hides only the password currently typed. It does not retrieve stored passwords. Hashing does not make a weak existing password strong: change temporary passwords
-through My account. Session version checks invalidate old sessions after changes.
+through My account. Session version checks invalidate old sessions after password changes or administrator-managed account changes; self-service profile saves keep sessions active.
 
 ## Student, blog and video management
 
@@ -136,7 +136,7 @@ on admin routes. Your existing `admin` account is migrated to **Owner**.
 
 Managers cannot create Managers/Owners, edit those levels, or delete admin accounts. Owners
 cannot disable, demote or delete themselves. Account changes invalidate existing
-sessions. All administrators can update their own name, email, username and password at `/admin/account` after confirming their current password. Saving signs out all their sessions. All mutation services recheck privileges in PostgreSQL; hiding a tab is
+sessions. Administrators use `/admin/account` and students use `/student/account`. Each has independent Profile details and Change password forms. Profile saves need no password, update only the submitted name/email/username fields, preserve the password and keep sessions active. The password form requires the current password, an eight-character-or-longer new password and confirmation, changes no profile details, and signs out all sessions. Usernames are optional and students can sign in with either email or username. All mutation services recheck privileges in PostgreSQL; hiding a tab is
 not the authorization boundary. Referenced courses/classes/instructors/admins
 cannot be deleted when doing so would erase history; archive, cancel, reassign or
 disable them instead.

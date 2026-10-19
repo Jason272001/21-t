@@ -4,7 +4,11 @@ import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
-import { accountSchema, studentRegistrationSchema } from "../src/validators/account";
+import {
+  profileSchema,
+  passwordChangeSchema,
+  studentRegistrationSchema,
+} from "../src/validators/account";
 test("self-service account security and student class access (isolated schema)", async (t) => {
   const url = new URL(process.env.DATABASE_URL || "");
   assert.ok(["localhost", "127.0.0.1"].includes(url.hostname));
@@ -23,7 +27,7 @@ test("self-service account security and student class access (isolated schema)",
     { env: process.env, stdio: "pipe" },
   );
   const { prisma } = await import("../src/lib/prisma"),
-    { updateOwnAdminAccount } = await import("../src/server/account"),
+    { updateOwnProfile, changeOwnPassword } = await import("../src/server/account"),
     { authenticate } = await import("../src/server/authenticate"),
     { registerStudent, studentClass } = await import("../src/server/student"),
     { issueClassCode, redeemClassCode } = await import("../src/server/workspace"),
@@ -51,82 +55,182 @@ test("self-service account security and student class access (isolated schema)",
       },
       include: { instructorProfile: true },
     });
-    const ownInput = accountSchema.parse({
+    const profileInput = profileSchema.parse({
       name: "Updated Owner",
       email: "owner-new@example.test",
       username: "Owner #NEW",
+    });
+    const passwordInput = passwordChangeSchema.parse({
       currentPassword: "12345",
       newPassword: "ABC#1234",
       confirmPassword: "ABC#1234",
     });
     await t.test(
-      "Self-service checks current password and confirmation before changing credentials",
+      "Admin profile saves require no password and preserve sessions and password hashes",
+      async () => {
+        const before = await prisma.user.findUniqueOrThrow({ where: { id: owner.id } });
+        await updateOwnProfile(owner.id, profileInput);
+        const after = await prisma.user.findUniqueOrThrow({ where: { id: owner.id } });
+        assert.equal(after.passwordHash, before.passwordHash);
+        assert.equal(after.authVersion, 0);
+        assert.equal(after.adminLevel, "OWNER");
+        assert.equal(after.username, "owner #new");
+        assert.ok(await authenticate({ email: "OWNER #NEW", password: "12345" }, "ADMIN"));
+      },
+    );
+    await t.test(
+      "Password changes validate current password and confirmation without changing profile details",
       async () => {
         assert.equal(
-          accountSchema.safeParse({ ...ownInput, confirmPassword: "different" }).success,
-          false,
-        );
-        assert.equal(
-          accountSchema.safeParse({ ...ownInput, newPassword: "12345", confirmPassword: "12345" })
+          passwordChangeSchema.safeParse({ ...passwordInput, confirmPassword: "different" })
             .success,
           false,
         );
         await assert.rejects(
-          updateOwnAdminAccount(owner.id, { ...ownInput, currentPassword: "wrong" }),
+          changeOwnPassword(owner.id, { ...passwordInput, currentPassword: "wrong" }),
           /current password/,
+        );
+        await assert.rejects(
+          changeOwnPassword(owner.id, {
+            ...passwordInput,
+            newPassword: "short",
+            confirmPassword: "short",
+          }),
+          /8 characters/,
         );
         assert.equal(
           (await prisma.user.findUniqueOrThrow({ where: { id: owner.id } })).authVersion,
           0,
         );
-        await updateOwnAdminAccount(owner.id, ownInput);
-        const updated = await prisma.user.findUniqueOrThrow({ where: { id: owner.id } });
-        assert.equal(updated.adminLevel, "OWNER");
-        assert.equal(updated.role, "ADMIN");
-        assert.equal(updated.username, "owner #new");
-        assert.equal(updated.authVersion, 1);
-        assert.equal(await bcrypt.compare("12345", updated.passwordHash!), false);
+        await changeOwnPassword(owner.id, {
+          ...passwordInput,
+          username: "!",
+          email: "not-an-email",
+          name: "Do not change",
+        } as typeof passwordInput);
+        const after = await prisma.user.findUniqueOrThrow({ where: { id: owner.id } });
+        assert.equal(after.username, "owner #new");
+        assert.equal(after.name, profileInput.name);
+        assert.equal(after.email, profileInput.email);
+        assert.equal(after.authVersion, 1);
+        assert.equal(after.adminLevel, "OWNER");
         assert.ok(
-          await authenticate({ email: "OWNER #NEW", password: ownInput.newPassword }, "ADMIN"),
+          await authenticate({ email: "OWNER #NEW", password: passwordInput.newPassword }, "ADMIN"),
         );
-        assert.equal(await authenticate({ email: "admin", password: "12345" }, "ADMIN"), null);
+        assert.equal(await authenticate({ email: "OWNER #NEW", password: "12345" }, "ADMIN"), null);
       },
     );
-    await t.test("Self-service cannot escalate Staff or overwrite another account", async () => {
-      const staff = await prisma.user.create({
-        data: {
-          email: "staff@example.test",
-          username: "staff",
-          role: "ADMIN",
-          adminLevel: "STAFF",
-          passwordHash: await bcrypt.hash("Staff-Password-123!", 12),
-        },
-      });
-      const input = accountSchema.parse({
-        ...ownInput,
-        name: "Staff updated",
-        email: "staff@example.test",
-        username: "staff",
-        currentPassword: "Staff-Password-123!",
-        newPassword: "",
-        confirmPassword: "",
-        adminLevel: "OWNER",
-        id: owner.id,
-      });
-      await updateOwnAdminAccount(staff.id, input);
-      assert.equal(
-        (await prisma.user.findUniqueOrThrow({ where: { id: staff.id } })).adminLevel,
-        "STAFF",
-      );
-      await assert.rejects(
-        updateOwnAdminAccount(staff.id, { ...input, email: ownInput.email }),
-        /already in use/,
-      );
-      assert.equal(
-        (await prisma.user.findUniqueOrThrow({ where: { id: owner.id } })).email,
-        ownInput.email,
-      );
+    await t.test(
+      "Staff profile saves cannot alter privileges or overwrite another account",
+      async () => {
+        const staff = await prisma.user.create({
+          data: {
+            email: "staff@example.test",
+            username: "staff",
+            role: "ADMIN",
+            adminLevel: "STAFF",
+            passwordHash: await bcrypt.hash("Staff-Password-123!", 12),
+          },
+        });
+        const input = profileSchema.parse({
+          name: "Staff updated",
+          adminLevel: "OWNER",
+          id: owner.id,
+          passwordHash: "forged",
+          authVersion: 500,
+          newPassword: "Do not change",
+        });
+        const before = await prisma.user.findUniqueOrThrow({ where: { id: staff.id } });
+        await updateOwnProfile(staff.id, input);
+        const after = await prisma.user.findUniqueOrThrow({ where: { id: staff.id } });
+        assert.equal(after.adminLevel, "STAFF");
+        assert.equal(after.passwordHash, before.passwordHash);
+        assert.equal(after.authVersion, 0);
+        await assert.rejects(
+          updateOwnProfile(staff.id, { email: profileInput.email }),
+          /already in use/,
+        );
+        await assert.rejects(
+          updateOwnProfile(staff.id, { username: profileInput.email }),
+          /already in use/,
+        );
+        assert.equal(
+          (await prisma.user.findUniqueOrThrow({ where: { id: owner.id } })).email,
+          profileInput.email,
+        );
+      },
+    );
+    const settingsStudent = await prisma.user.create({
+      data: {
+        name: "Settings Student",
+        email: "settings@example.test",
+        role: "STUDENT",
+        passwordHash: await bcrypt.hash("Student-Password-123!", 12),
+        studentProfile: { create: {} },
+      },
     });
+    await t.test(
+      "Students can edit only name, only email or only username without supplying any password",
+      async () => {
+        const before = await prisma.user.findUniqueOrThrow({ where: { id: settingsStudent.id } });
+        await updateOwnProfile(settingsStudent.id, { name: "New Student Name" });
+        const nameOnly = await prisma.user.findUniqueOrThrow({ where: { id: settingsStudent.id } });
+        assert.equal(nameOnly.name, "New Student Name");
+        assert.equal(nameOnly.email, before.email);
+        assert.equal(nameOnly.username, null);
+        await updateOwnProfile(settingsStudent.id, { email: "new-settings@example.test" });
+        await updateOwnProfile(settingsStudent.id, { username: "Student #ONE" });
+        const after = await prisma.user.findUniqueOrThrow({ where: { id: settingsStudent.id } });
+        assert.equal(after.username, "student #one");
+        assert.equal(after.email, "new-settings@example.test");
+        assert.equal(after.name, "New Student Name");
+        assert.equal(after.passwordHash, before.passwordHash);
+        assert.equal(after.authVersion, 0);
+        assert.equal(after.role, "STUDENT");
+        assert.ok(
+          await authenticate(
+            { email: "STUDENT #ONE", password: "Student-Password-123!" },
+            "STUDENT",
+          ),
+        );
+      },
+    );
+    await t.test(
+      "Student password changes are independent; empty usernames are optional and disabled accounts cannot save",
+      async () => {
+        await updateOwnProfile(settingsStudent.id, profileSchema.parse({ username: "" }));
+        assert.equal(
+          (await prisma.user.findUniqueOrThrow({ where: { id: settingsStudent.id } })).username,
+          null,
+        );
+        await changeOwnPassword(settingsStudent.id, {
+          currentPassword: "Student-Password-123!",
+          newPassword: "########",
+          confirmPassword: "########",
+        });
+        const after = await prisma.user.findUniqueOrThrow({ where: { id: settingsStudent.id } });
+        assert.equal(after.email, "new-settings@example.test");
+        assert.equal(after.authVersion, 1);
+        assert.ok(await authenticate({ email: after.email, password: "########" }, "STUDENT"));
+        assert.equal(
+          profileSchema.safeParse({ role: "ADMIN", passwordHash: "bad" }).success,
+          false,
+        );
+        await prisma.user.update({ where: { id: settingsStudent.id }, data: { isActive: false } });
+        await assert.rejects(
+          updateOwnProfile(settingsStudent.id, { name: "Disabled" }),
+          /active account/,
+        );
+        await assert.rejects(
+          changeOwnPassword(settingsStudent.id, {
+            currentPassword: "########",
+            newPassword: "ABCDEFGH",
+            confirmPassword: "ABCDEFGH",
+          }),
+          /active account/,
+        );
+      },
+    );
     const category = await prisma.courseCategory.create({
       data: { name: "Computers", slug: "computers" },
     });
@@ -254,7 +358,7 @@ test("self-service account security and student class access (isolated schema)",
           },
         });
         assert.equal(await studentClass(unpaid.id, klass.id), null);
-        await assert.rejects(updateOwnAdminAccount(unpaid.id, ownInput), /administrator/);
+        await assert.rejects(changeOwnPassword(unpaid.id, passwordInput), /active account/);
         await prisma.user.update({ where: { id: studentId }, data: { isActive: false } });
         assert.equal(await studentClass(studentId, klass.id), null);
         await prisma.user.update({ where: { id: studentId }, data: { isActive: true } });

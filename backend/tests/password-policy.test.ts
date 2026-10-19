@@ -5,7 +5,7 @@ import { hashPassword, verifyPassword } from "../src/server/passwords";
 import { registerSchema } from "../src/validators/forms";
 import { studentSchema } from "../src/validators/management";
 import { teamSchema } from "../src/validators/workspace";
-import { accountSchema } from "../src/validators/account";
+import { passwordChangeSchema, profileSchema } from "../src/validators/account";
 
 test("Student/admin creation and password changes accept eight characters without composition rules", async () => {
   const base = {
@@ -32,7 +32,7 @@ test("Student/admin creation and password changes accept eight characters withou
     assert.ok(studentSchema.safeParse({ ...base, password }).success, password);
     assert.ok(teamSchema.safeParse({ ...base, password }).success, password);
     assert.ok(
-      accountSchema.safeParse({ ...base, newPassword: password, confirmPassword: password })
+      passwordChangeSchema.safeParse({ ...base, newPassword: password, confirmPassword: password })
         .success,
       password,
     );
@@ -45,7 +45,7 @@ test("Student/admin creation and password changes accept eight characters withou
   assert.equal(studentSchema.safeParse({ ...base, password: short }).success, false);
   assert.equal(teamSchema.safeParse({ ...base, password: short }).success, false);
   assert.equal(
-    accountSchema.safeParse({ ...base, newPassword: short, confirmPassword: short }).success,
+    passwordChangeSchema.safeParse({ ...base, newPassword: short, confirmPassword: short }).success,
     false,
   );
   await assert.rejects(hashPassword(short));
@@ -69,9 +69,9 @@ test("Mixed-case and symbol usernames never block valid password changes", () =>
       newPassword: "ABCD#123",
       confirmPassword: "ABCD#123",
     };
-    const account = accountSchema.parse(input);
+    const account = profileSchema.parse(input);
     assert.equal(account.username, username.toLowerCase());
-    assert.equal(account.newPassword, "ABCD#123");
+    assert.equal(passwordChangeSchema.parse(input).newPassword, "ABCD#123");
     assert.ok(
       teamSchema.safeParse({ ...input, password: "ABCD#123", adminLevel: "STAFF" }).success,
     );

@@ -45,10 +45,12 @@ export function LoginForm({ locale, admin = false }: { locale: Locale; admin?: b
           ? locale === "en"
             ? "Admin username or email"
             : "စီမံသူ အမည် သို့မဟုတ် အီးမေးလ်"
-          : t.email}
+          : locale === "en"
+            ? "Email or username"
+            : "အီးမေးလ် သို့မဟုတ် အသုံးပြုသူအမည်"}
         <input
           name="email"
-          type={admin ? "text" : "email"}
+          type="text"
           autoComplete="username"
           required
           className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground"

@@ -42,6 +42,7 @@ export async function Footer() {
         <FooterLinks
           title={footer.learn}
           links={[
+            [nav.about, "/about"],
             [nav.articles, "/articles"],
             [nav.courses, "/courses"],
             [locale === "en" ? "Videos" : "ဗီဒီယိုများ", "/videos"],

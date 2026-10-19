@@ -24,7 +24,14 @@ export default async function RegisterPage() {
             <ActionForm action={registerAction} submitLabel={t.register}>
               <TextField name="name" label={t.fullName} required />
               <TextField name="email" label={t.email} type="email" required />
-              <TextField name="password" label={t.password} type="password" required />
+              <TextField
+                name="password"
+                label={t.password}
+                type="password"
+                locale={locale}
+                hint={t.registerHint}
+                required
+              />
               <TextField
                 name="classCode"
                 label={locale === "en" ? "Class code" : "အတန်းဝင်ကုဒ်"}

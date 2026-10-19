@@ -65,6 +65,7 @@ export function TeamEditor({
         <Input
           label={t.password}
           name="password"
+          locale={locale}
           type="password"
           required={!record}
           hint={t.passwordHint}

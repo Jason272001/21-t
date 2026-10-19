@@ -10,6 +10,7 @@ import {
 import { managementCopy } from "@/lib/management-copy";
 import { enumLabel } from "@/lib/portal-copy";
 import type { Locale } from "@/lib/i18n";
+import { PasswordField } from "@/components/forms/password-field";
 const inputClass = "min-h-11 w-full rounded-lg border border-line/20 bg-page p-3 text-foreground";
 export function Input({
   label,
@@ -18,6 +19,7 @@ export function Input({
   type = "text",
   required = false,
   hint,
+  locale,
 }: {
   label: string;
   name: string;
@@ -25,7 +27,19 @@ export function Input({
   type?: string;
   required?: boolean;
   hint?: string;
+  locale?: Locale;
 }) {
+  if (type === "password")
+    return (
+      <PasswordField
+        name={name}
+        label={label}
+        defaultValue={value || ""}
+        required={required}
+        hint={hint}
+        locale={locale}
+      />
+    );
   return (
     <label className="grid gap-2 text-sm font-semibold">
       {label}
@@ -128,6 +142,7 @@ export function StudentEditor({
         </div>
         <Input
           name="password"
+          locale={locale}
           type="password"
           label={t.password}
           required={!student}

@@ -15,8 +15,8 @@ async function main() {
   const name = process.env.ADMIN_NAME?.trim() || "21CT Admin";
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     throw new Error("Set a valid ADMIN_EMAIL.");
-  if (!password || password.length < 12 || Buffer.byteLength(password, "utf8") > 72) {
-    throw new Error("Set ADMIN_PASSWORD to at least 12 characters and at most 72 UTF-8 bytes.");
+  if (!password || password.length < 8) {
+    throw new Error("Set ADMIN_PASSWORD to at least 8 characters.");
   }
   const existing = await db.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },

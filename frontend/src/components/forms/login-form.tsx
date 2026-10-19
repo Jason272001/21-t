@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { portalCopy } from "@/lib/portal-copy";
 import type { Locale } from "@/lib/i18n";
+import { PasswordField } from "./password-field";
 
 export function LoginForm({ locale, admin = false }: { locale: Locale; admin?: boolean }) {
   const router = useRouter();
@@ -53,16 +54,14 @@ export function LoginForm({ locale, admin = false }: { locale: Locale; admin?: b
           className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground"
         />
       </label>
-      <label className="grid gap-2 text-sm font-semibold">
-        {t.password}
-        <input
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          className="min-h-11 rounded-lg border border-line/10 bg-page px-3 text-foreground"
-        />
-      </label>
+      <PasswordField
+        name="password"
+        label={t.password}
+        locale={locale}
+        autoComplete="current-password"
+        minLength={0}
+        required
+      />
       {error ? (
         <p role="alert" className="text-sm font-semibold text-warning">
           {t.loginError}

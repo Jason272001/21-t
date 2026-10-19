@@ -5,6 +5,7 @@ import { Input } from "@/components/portal/management-editors";
 import { updateOwnAccountAction } from "@backend/actions/account";
 import { workspaceCopy } from "@/lib/workspace-copy";
 import { prisma } from "@backend/lib/prisma";
+import { PasswordField } from "@/components/forms/password-field";
 export default async function Page() {
   const { user, locale } = await adminContext(),
     t = workspaceCopy(locale),
@@ -32,24 +33,24 @@ export default async function Page() {
             <Input name="email" label={t.email} value={user.email} type="email" required />
             <Input name="username" label={t.username} value={record.username} required />
           </div>
-          <label className="grid gap-2 text-sm font-semibold">
-            {en ? "Current password" : "လက်ရှိစကားဝှက်"}
-            <input
-              name="currentPassword"
-              type="password"
-              autoComplete="current-password"
-              required
-              className="min-h-11 rounded-xl border border-line/20 bg-page p-3"
-            />
-          </label>
+          <PasswordField
+            name="currentPassword"
+            label={en ? "Current password" : "လက်ရှိစကားဝှက်"}
+            locale={locale}
+            autoComplete="current-password"
+            minLength={0}
+            required
+          />
           <Input
             name="newPassword"
+            locale={locale}
             label={en ? "New password (optional)" : "စကားဝှက်အသစ် (ရွေးချယ်နိုင်)"}
             type="password"
             hint={t.passwordHint}
           />
           <Input
             name="confirmPassword"
+            locale={locale}
             label={en ? "Confirm new password" : "စကားဝှက်အသစ် အတည်ပြုပါ"}
             type="password"
           />

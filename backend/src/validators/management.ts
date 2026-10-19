@@ -1,10 +1,7 @@
 import { z } from "zod";
 const password = z
   .string()
-  .refine(
-    (value) => !value || (value.length >= 12 && Buffer.byteLength(value, "utf8") <= 72),
-    "Use a password of at least 12 characters and at most 72 UTF-8 bytes.",
-  );
+  .refine((value) => !value || value.length >= 8, "Use a password of at least 8 characters.");
 export const studentSchema = z.object({
   name: z.string().trim().min(2).max(100),
   email: z.string().trim().toLowerCase().email().max(254),

@@ -10,8 +10,8 @@ const words = {
   email: ["Email", "အီးမေးလ်"],
   password: ["Password", "စကားဝှက်"],
   passwordHint: [
-    "At least 12 characters. Leave blank when editing to keep the current password.",
-    "အနည်းဆုံး စာလုံး ၁၂ လုံး။ မပြောင်းလိုပါက ပြင်ဆင်ချိန်တွင် ကွက်လပ်ထားပါ။",
+    "At least 8 characters. Leave blank when editing to keep the current password.",
+    "အနည်းဆုံး စာလုံး ၈ လုံး။ မပြောင်းလိုပါက ပြင်ဆင်ချိန်တွင် ကွက်လပ်ထားပါ။",
   ],
   phone: ["Phone", "ဖုန်း"],
   city: ["City", "မြို့"],

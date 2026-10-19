@@ -6,6 +6,7 @@ import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve, sep } from "node:path";
 import bcrypt from "bcryptjs";
+import { verifyPassword } from "../src/server/passwords";
 import { PrismaClient } from "@prisma/client";
 import { studentSchema, articleSchema, videoSchema } from "../src/validators/management";
 
@@ -91,7 +92,7 @@ test("admin management and video access (isolated local schema)", async (t) => {
       });
       assert.equal(record.role, "STUDENT");
       assert.notEqual(record.passwordHash, password);
-      assert.equal(await bcrypt.compare(password, record.passwordHash!), true);
+      assert.equal(await verifyPassword(password, record.passwordHash!), true);
       assert.equal(record.studentProfile?.city, "Yangon");
     });
     await t.test("student cannot manage students or posts, even with a forged role", async () => {

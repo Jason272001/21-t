@@ -1,3 +1,5 @@
+import { PasswordField } from "./password-field";
+import type { Locale } from "@/lib/i18n";
 export function TextField({
   label,
   name,
@@ -5,6 +7,8 @@ export function TextField({
   required = false,
   defaultValue,
   readOnly = false,
+  locale,
+  hint,
 }: {
   label: string;
   name: string;
@@ -12,7 +16,20 @@ export function TextField({
   required?: boolean;
   defaultValue?: string;
   readOnly?: boolean;
+  locale?: Locale;
+  hint?: string;
 }) {
+  if (type === "password")
+    return (
+      <PasswordField
+        name={name}
+        label={label}
+        required={required}
+        defaultValue={defaultValue}
+        locale={locale}
+        hint={hint}
+      />
+    );
   return (
     <label className="grid gap-2 text-sm font-semibold text-foreground">
       {label}

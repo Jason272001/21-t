@@ -10,14 +10,11 @@ export const accountSchema = z
       .min(3)
       .max(32)
       .regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, underscores or hyphens."),
-    currentPassword: z.string().min(1).max(128),
+    currentPassword: z.string().min(1),
     newPassword: z
       .string()
-      .refine(
-        (v) => !v || (v.length >= 12 && Buffer.byteLength(v, "utf8") <= 72),
-        "Use at least 12 characters and at most 72 UTF-8 bytes for a new password.",
-      ),
-    confirmPassword: z.string().max(128),
+      .refine((v) => !v || v.length >= 8, "Use at least 8 characters for a new password."),
+    confirmPassword: z.string(),
   })
   .refine((v) => v.newPassword === v.confirmPassword, {
     message: "New passwords do not match.",

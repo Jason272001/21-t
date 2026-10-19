@@ -6,10 +6,7 @@ export const teamSchema = z.object({
   username: text(3, 32).regex(/^[a-z0-9_-]+$/),
   password: z
     .string()
-    .refine(
-      (v) => !v || (v.length >= 12 && Buffer.byteLength(v, "utf8") <= 72),
-      "Use 12–72 characters for a new password.",
-    ),
+    .refine((v) => !v || v.length >= 8, "Use at least 8 characters for a new password."),
   adminLevel: z.enum(["OWNER", "MANAGER", "STAFF"]),
   isActive: z
     .string()

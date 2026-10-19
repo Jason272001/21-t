@@ -16,7 +16,7 @@ export async function authenticate(credentials: unknown, role: "ADMIN" | "STUDEN
   const parsed = z
     .object({
       email: z.string().trim().toLowerCase().min(1).max(254),
-      password: z.string().min(1).max(128),
+      password: z.string().min(1),
     })
     .safeParse(credentials);
   if (!parsed.success) return null;

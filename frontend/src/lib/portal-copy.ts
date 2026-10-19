@@ -64,7 +64,7 @@ const en = {
   loggingIn: "Signing in…",
   loginHint: "Sign in to manage your classes or continue learning.",
   register: "Create student account",
-  registerHint: "Use at least 12 characters for your password.",
+  registerHint: "Use at least 8 characters for your password.",
   registered: "Your account is ready. Sign in to continue.",
   loginError:
     "Unable to sign in. Check your details, or wait 15 minutes if you have tried repeatedly.",
@@ -142,7 +142,7 @@ const my: Record<keyof typeof en, string> = {
   loggingIn: "ဝင်နေပါသည်…",
   loginHint: "သင်၏အတန်းများကို စီမံရန် သို့မဟုတ် ဆက်လက်လေ့လာရန် အကောင့်ဝင်ပါ။",
   register: "သင်တန်းသားအကောင့် ဖွင့်ရန်",
-  registerHint: "စကားဝှက်တွင် အနည်းဆုံး စာလုံး ၁၂ လုံး အသုံးပြုပါ။",
+  registerHint: "စကားဝှက်တွင် အနည်းဆုံး စာလုံး ၈ လုံး အသုံးပြုပါ။",
   registered: "အကောင့်ဖွင့်ပြီးပါပြီ။ ဆက်လက်အသုံးပြုရန် ဝင်ပါ။",
   loginError: "အကောင့်ဝင်မရပါ။ အချက်အလက်များစစ်ဆေးပါ။ အကြိမ်များစွာ စမ်းထားပါက ၁၅ မိနစ်စောင့်ပါ။",
   unavailable: "လက်ရှိတွင် အကောင့်အသုံးပြုမှု မရနိုင်သေးပါ။ နောက်မှ ပြန်လည်စမ်းပါ။",

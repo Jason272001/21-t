@@ -51,7 +51,7 @@ moving the project or copying the local database directory.
 - Schedule a class with dates, times, capacity, price, and enrollment deadline.
   Dates and times use **Asia/Yangon (UTC+06:30)**.
 - Draft classes stay private. Select **Open for enrollment** to accept students.
-- `/register`: creates a student account and confirms its first class atomically; a valid class code is required and passwords require 12 characters.
+- `/register`: creates a student account and confirms its first class atomically; a valid class code is required and passwords require 8 characters.
 - `/portal`: routes signed-in admins to `/admin` and other users to `/student`.
 - `/student`: dedicated bilingual student dashboard with class details, course materials, announcements and authorized videos. `/student/join` redeems another class code using the existing account.
 - Enrollment requires sign-in, checks publication/deadline/capacity, prevents
@@ -64,10 +64,8 @@ moving the project or copying the local database directory.
 ## Password storage
 
 All student/admin creation, resets and self-service changes use the shared
-backend/src/server/passwords.ts helper: bcrypt with a fresh random salt and cost 12. Authentication compares hashes; plaintext passwords are never persisted.
-New passwords require at least 12 characters and at most 72 UTF-8 bytes; oversized
-login input is rejected instead of silently truncated. Existing hashes remain valid.
-Hashing does not make a weak existing password strong: change temporary passwords
+backend/src/server/passwords.ts helper: salted scrypt (N=32768, r=8, p=3, 64-byte key), with timing-safe comparisons. Existing bcrypt accounts continue to authenticate. New passwords require at least 8 characters, with no character-type rules or bcrypt byte limit; the full password is hashed without trimming or normalization. Plaintext passwords are never persisted. These scrypt parameters follow [OWASP guidance](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#scrypt).
+The eye button on login, registration and account forms shows/hides only the password currently typed. It does not retrieve stored passwords. Hashing does not make a weak existing password strong: change temporary passwords
 through My account. Session version checks invalidate old sessions after changes.
 
 ## Student, blog and video management
@@ -77,7 +75,7 @@ through My account. Session version checks invalidate old sessions after changes
   authorization is enforced on pages, actions and video endpoints.
 - `/admin/students`: search, create, edit, reset passwords, enable/disable and
   delete student accounts. Changes invalidate existing sessions. Student
-  passwords require at least 12 characters. Administrators cannot be modified
+  passwords require at least 8 characters. Administrators cannot be modified
   through student management.
 - Deletion requires typing the student's email, permanently removes that
   student's enrollment/payment/attendance records, and releases occupied seats.
@@ -176,7 +174,7 @@ random `AUTH_SECRET`, `AUTH_URL` and `NEXT_PUBLIC_SITE_URL` for the live domain 
 your hosting environment. Configure Auth.js trusted-host handling for the chosen
 host. Apply `npm run db:deploy` against that database before enabling accounts.
 Create the first live administrator using `ADMIN_EMAIL`, `ADMIN_PASSWORD`
-(at least 12 characters, at most 72 UTF-8 bytes) and optionally `ADMIN_NAME` / `ADMIN_USERNAME` with
+(at least 8 characters) and optionally `ADMIN_NAME` / `ADMIN_USERNAME` with
 `npm run admin:create`. Supply those through environment variables, never Git.
 The command preserves an existing admin and refuses to promote an existing student.
 

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { hashPassword, verifyPassword, PASSWORD_COST } from "../src/server/passwords";
+import { hashPassword, verifyPassword } from "../src/server/passwords";
 import { readArticlePicture } from "../src/server/article-images";
 import { articleSchema } from "../src/validators/management";
 
@@ -27,22 +27,22 @@ test("password hashing and anonymous blog discussion (isolated local schema)", a
   const { saveArticle, deleteArticle } = await import("../src/server/management");
   const { postComment, reactToArticle, removeComment } = await import("../src/server/discussion");
   try {
-    await t.test(
-      "Passwords use salted cost-12 bcrypt and reject truncation or weak new passwords",
-      async () => {
-        const secret = "A-strong-password-123!";
-        const [a, b] = await Promise.all([hashPassword(secret), hashPassword(secret)]);
-        assert.notEqual(a, b);
-        assert.notEqual(a, secret);
-        assert.equal(Number(a.split("$")[2]), PASSWORD_COST);
-        assert.equal(await verifyPassword(secret, a), true);
-        assert.equal(await verifyPassword("wrong", a), false);
-        await assert.rejects(hashPassword("12345"));
-        await assert.rejects(hashPassword("က".repeat(25)));
-        assert.equal(await verifyPassword("a".repeat(73), a), false);
-        assert.equal(await verifyPassword(secret, secret), false);
-      },
-    );
+    await t.test("Passwords use salted scrypt and preserve the full password", async () => {
+      const secret = "A-strong-password-123!";
+      const [a, b] = await Promise.all([hashPassword(secret), hashPassword(secret)]);
+      assert.notEqual(a, b);
+      assert.notEqual(a, secret);
+      assert.ok(a.startsWith("scrypt$v1$32768$8$3$"));
+      assert.equal(await verifyPassword(secret, a), true);
+      assert.equal(await verifyPassword("wrong", a), false);
+      await assert.rejects(hashPassword("12345"));
+      const long = "က".repeat(200);
+      const longHash = await hashPassword(long);
+      assert.equal(await verifyPassword(long, longHash), true);
+      assert.equal(await verifyPassword(long + "x", longHash), false);
+      assert.equal(await verifyPassword("a".repeat(73), a), false);
+      assert.equal(await verifyPassword(secret, secret), false);
+    });
     const admin = await prisma.user.create({
       data: { email: "owner@example.test", role: "ADMIN", adminLevel: "OWNER" },
     });

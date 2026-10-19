@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, ArrowUpRight } from "lucide-react";
+import { Plus, ArrowUpRight, Link2 } from "lucide-react";
 import { prisma } from "@backend/lib/prisma";
 import { adminContext } from "@/lib/admin-context";
 import { workspaceCopy } from "@/lib/workspace-copy";
@@ -90,6 +90,15 @@ export async function WorkspaceCatalog({ kind, page = 1 }: { kind: Kind; page?: 
               : kind === "instructors"
                 ? t.newInstructor
                 : t.create}
+          </Link>
+        )}
+        {kind === "team" && (
+          <Link
+            href="/admin/team/invitations"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line/20 px-5 text-sm font-bold text-accent"
+          >
+            <Link2 size={17} />
+            {locale === "en" ? "Invitation links" : "ဖိတ်ကြားလင့်ခ်များ"}
           </Link>
         )}
       </div>

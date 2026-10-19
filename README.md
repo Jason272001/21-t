@@ -253,3 +253,27 @@ reload does not flash the other theme. No database is required for this setting.
 Theme colors are defined in `frontend/src/app/globals.css`. Use semantic utilities
 such as `bg-page`, `bg-surface`, `text-foreground`, and `text-muted` for new UI so
 both themes stay consistent. Bright action buttons retain their dark text for contrast.
+
+## Admin invitation links
+
+In **Admin team → Invitation links**, Owners can invite Managers or Staff, and
+Managers can invite Staff only. Staff cannot invite administrators. Choose the
+access level and expiry, generate a link, then copy and share it privately. The
+recipient opens `/admin57/join/<token>`, chooses their own name, email, username
+and password, and signs in through `/admin57/log-in` after account creation.
+Existing signed-in users must sign out first; invitations create new accounts
+and do not promote existing student accounts.
+
+Each link creates one account, expires after 24 hours by default (maximum seven
+days), and can be revoked before use. Opening a link does not consume it. The
+role is fixed by the issuer and checked again when the account is created.
+Pending invitations stop working if the issuer is disabled or loses permission
+to grant that role. Owners can view/revoke all invitations; Managers can manage
+their own invitations. Owner accounts cannot be created through invitation links.
+
+Treat the full URL as a temporary credential: anyone holding it can register for
+that role. The full link is displayed only after generation; only its SHA-256
+digest and a short reference are stored. Copy it before leaving the page, or
+revoke it and generate another. Links are excluded from indexing and use a
+no-referrer policy. Recipient passwords use the same secure hashing and
+minimum eight-character policy as other accounts. No email is sent automatically.

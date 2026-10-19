@@ -127,6 +127,7 @@ export async function deleteWorkspaceRecord(
       if (
         (await tx.article.count({ where: { authorId: id } })) ||
         (await tx.classAccessCode.count({ where: { issuedById: id } })) ||
+        (await tx.adminInvitation.count({ where: { issuedById: id } })) ||
         (await tx.instructorProfile.count({ where: { userId: id } }))
       )
         throw new AdminError("This account has linked records. Disable it to preserve history.");

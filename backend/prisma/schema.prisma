@@ -114,6 +114,8 @@ model User {
   adminLevel      AdminLevel?
   issuedCodes     ClassAccessCode[]    @relation("CodeIssuer")
   redeemedCodes   ClassAccessCode[]    @relation("CodeStudent")
+  issuedInvitations AdminInvitation[] @relation("InvitationIssuer")
+  acceptedInvitations AdminInvitation[] @relation("InvitationRecipient")
   accounts        Account[]
   sessions        Session[]
   studentProfile  StudentProfile?
@@ -123,6 +125,24 @@ model User {
   updatedAt       DateTime           @updatedAt
 
   @@index([role])
+}
+
+model AdminInvitation {
+  id String @id @default(cuid())
+  digest String @unique
+  label String
+  note String?
+  adminLevel AdminLevel
+  issuedById String
+  acceptedById String?
+  expiresAt DateTime
+  acceptedAt DateTime?
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  issuedBy User @relation("InvitationIssuer", fields: [issuedById], references: [id], onDelete: Restrict)
+  acceptedBy User? @relation("InvitationRecipient", fields: [acceptedById], references: [id], onDelete: SetNull)
+
+  @@index([issuedById, createdAt])
 }
 
 model Account {

@@ -3,7 +3,7 @@ const text = (min: number, max: number) => z.string().trim().min(min).max(max);
 export const teamSchema = z.object({
   name: text(2, 100),
   email: text(3, 254).email().toLowerCase(),
-  username: text(3, 32).regex(/^[a-z0-9_-]+$/),
+  username: text(3, 32).toLowerCase(),
   password: z
     .string()
     .refine((v) => !v || v.length >= 8, "Use at least 8 characters for a new password."),

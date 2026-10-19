@@ -35,7 +35,12 @@ export async function saveTeamMember(actor: Actor, input: TeamInput, id?: string
     if (!id && !passwordHash) throw new AdminError("A password is required for a new admin.");
     const duplicate = await tx.user.findFirst({
       where: {
-        OR: [{ email: { equals: input.email, mode: "insensitive" } }, { username: input.username }],
+        OR: [
+          { email: { equals: input.email, mode: "insensitive" } },
+          { username: input.username },
+          { email: { equals: input.username, mode: "insensitive" } },
+          { username: input.email },
+        ],
         ...(id ? { id: { not: id } } : {}),
       },
     });

@@ -20,6 +20,8 @@ export async function updateOwnAdminAccount(userId: string, input: AccountInput)
           OR: [
             { email: { equals: input.email, mode: "insensitive" } },
             { username: input.username },
+            { email: { equals: input.username, mode: "insensitive" } },
+            { username: input.email },
           ],
         },
       })

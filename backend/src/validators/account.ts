@@ -4,12 +4,7 @@ export const accountSchema = z
   .object({
     name: z.string().trim().min(2).max(100),
     email: z.string().trim().toLowerCase().email().max(254),
-    username: z
-      .string()
-      .trim()
-      .min(3)
-      .max(32)
-      .regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, underscores or hyphens."),
+    username: z.string().trim().min(3).max(32).toLowerCase(),
     currentPassword: z.string().min(1),
     newPassword: z
       .string()

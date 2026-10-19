@@ -58,3 +58,22 @@ test("Existing bcrypt accounts still authenticate and a visibility toggle never 
   assert.equal(await verifyPassword("x".repeat(73), hash), false);
   assert.equal(await verifyPassword("12345678", "scrypt$v1$32768$8$3$malformed"), false);
 });
+
+test("Mixed-case and symbol usernames never block valid password changes", () => {
+  for (const username of ["Admin", "Jason#21CT", "Jason Moy", "မြန်မာအမည်"]) {
+    const input = {
+      name: "Account Test",
+      email: "account@example.test",
+      username,
+      currentPassword: "12345",
+      newPassword: "ABCD#123",
+      confirmPassword: "ABCD#123",
+    };
+    const account = accountSchema.parse(input);
+    assert.equal(account.username, username.toLowerCase());
+    assert.equal(account.newPassword, "ABCD#123");
+    assert.ok(
+      teamSchema.safeParse({ ...input, password: "ABCD#123", adminLevel: "STAFF" }).success,
+    );
+  }
+});

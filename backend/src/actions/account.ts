@@ -14,7 +14,21 @@ export async function logoutAction(admin = false) {
 export async function updateOwnAccountAction(_: ActionState, form: FormData): Promise<ActionState> {
   const user = await requireAdmin();
   const parsed = accountSchema.safeParse(Object.fromEntries(form));
-  if (!parsed.success) return { ok: false, message: parsed.error.issues[0].message };
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    const fields: Record<string, string> = {
+      name: "Name",
+      email: "Email",
+      username: "Username",
+      currentPassword: "Current password",
+      newPassword: "New password",
+      confirmPassword: "Confirm new password",
+    };
+    return {
+      ok: false,
+      message: `${fields[String(issue.path[0])] || "Account"}: ${issue.message}`,
+    };
+  }
   try {
     await updateOwnAdminAccount(user.id, parsed.data);
   } catch (error) {

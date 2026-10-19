@@ -6,7 +6,13 @@ import type { StudentRegistrationInput } from "../validators/account";
 export async function registerStudent(input: StudentRegistrationInput) {
   const passwordHash = await hashPassword(input.password);
   return prisma.$transaction(async (tx) => {
-    if (await tx.user.findFirst({ where: { email: { equals: input.email, mode: "insensitive" } } }))
+    if (
+      await tx.user.findFirst({
+        where: {
+          OR: [{ email: { equals: input.email, mode: "insensitive" } }, { username: input.email }],
+        },
+      })
+    )
       throw new AdminError(
         "This email is already registered. Sign in and use Join a class instead.",
       );

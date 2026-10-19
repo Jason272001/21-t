@@ -54,10 +54,10 @@ test("self-service account security and student class access (isolated schema)",
     const ownInput = accountSchema.parse({
       name: "Updated Owner",
       email: "owner-new@example.test",
-      username: "owner_new",
+      username: "Owner #NEW",
       currentPassword: "12345",
-      newPassword: "New-Owner-Password-123!",
-      confirmPassword: "New-Owner-Password-123!",
+      newPassword: "ABC#1234",
+      confirmPassword: "ABC#1234",
     });
     await t.test(
       "Self-service checks current password and confirmation before changing credentials",
@@ -83,11 +83,11 @@ test("self-service account security and student class access (isolated schema)",
         const updated = await prisma.user.findUniqueOrThrow({ where: { id: owner.id } });
         assert.equal(updated.adminLevel, "OWNER");
         assert.equal(updated.role, "ADMIN");
-        assert.equal(updated.username, "owner_new");
+        assert.equal(updated.username, "owner #new");
         assert.equal(updated.authVersion, 1);
         assert.equal(await bcrypt.compare("12345", updated.passwordHash!), false);
         assert.ok(
-          await authenticate({ email: "owner_new", password: ownInput.newPassword }, "ADMIN"),
+          await authenticate({ email: "OWNER #NEW", password: ownInput.newPassword }, "ADMIN"),
         );
         assert.equal(await authenticate({ email: "admin", password: "12345" }, "ADMIN"), null);
       },

@@ -65,6 +65,8 @@ moving the project or copying the local database directory.
 
 All student/admin creation, resets and self-service changes use the shared
 backend/src/server/passwords.ts helper: salted scrypt (N=32768, r=8, p=3, 64-byte key), with timing-safe comparisons. Existing bcrypt accounts continue to authenticate. New passwords require at least 8 characters, with no character-type rules or bcrypt byte limit; the full password is hashed without trimming or normalization. Plaintext passwords are never persisted. These scrypt parameters follow [OWASP guidance](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#scrypt).
+Usernames accept uppercase letters, spaces and symbols (3–32 characters); they are normalized to lowercase for case-insensitive sign-in. Password case and characters are preserved exactly. Account validation errors identify the affected field.
+
 The eye button on login, registration and account forms shows/hides only the password currently typed. It does not retrieve stored passwords. Hashing does not make a weak existing password strong: change temporary passwords
 through My account. Session version checks invalidate old sessions after changes.
 

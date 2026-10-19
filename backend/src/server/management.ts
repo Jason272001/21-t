@@ -26,7 +26,7 @@ export async function saveStudent(actor: Actor, input: StudentInput, id?: string
     }
     const existing = await tx.user.findFirst({
       where: {
-        email: { equals: input.email, mode: "insensitive" },
+        OR: [{ email: { equals: input.email, mode: "insensitive" } }, { username: input.email }],
         ...(id ? { id: { not: id } } : {}),
       },
       select: { id: true },

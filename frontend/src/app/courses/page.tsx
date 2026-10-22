@@ -3,6 +3,7 @@ import { CourseCard } from "@/components/courses/course-card";
 import { Section } from "@/components/section";
 import { EmptyState } from "@/components/ui/states";
 import { prisma } from "@backend/lib/prisma";
+import { UpcomingCourses } from "@/components/courses/upcoming-courses";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Professional IT Courses" };
@@ -37,6 +38,9 @@ export default async function CoursesPage({
       title="Professional course catalog"
       body="Computer, Networking, Cybersecurity, AI, IT Support, Web Development and Career Preparation."
     >
+      <div className="mb-10">
+        <UpcomingCourses />
+      </div>
       <form className="mb-8 grid gap-3 rounded-lg border border-line/10 bg-surface p-4 md:grid-cols-[1fr_220px_180px_auto]">
         <input
           name="q"
@@ -75,7 +79,10 @@ export default async function CoursesPage({
           ))}
         </div>
       ) : (
-        <EmptyState title="No courses found" body="Try another filter." />
+        <EmptyState
+          title="Enrollment-ready courses"
+          body="Upcoming learning plans are available above. Confirmed dates and enrollment details will be announced soon."
+        />
       )}
     </Section>
   );

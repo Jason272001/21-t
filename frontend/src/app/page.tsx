@@ -9,6 +9,7 @@ import {
 import { ArticleCard } from "@/components/articles/article-card";
 import { ClassCard } from "@/components/courses/class-card";
 import { CourseCard } from "@/components/courses/course-card";
+import { UpcomingCourses } from "@/components/courses/upcoming-courses";
 import { InstructorCard } from "@/components/instructors/instructor-card";
 import { Section } from "@/components/section";
 import { TestimonialCard } from "@/components/testimonials/testimonial-card";
@@ -84,7 +85,8 @@ export default async function HomePage() {
       </Section>
 
       <Section eyebrow={nav.schedule} title={home.upcomingClasses} className="bg-surface">
-        <div className="grid gap-5 lg:grid-cols-3">
+        <UpcomingCourses />
+        <div className="mt-8 grid gap-5 lg:grid-cols-3">
           {classes.map((item) => (
             <ClassCard key={item.id} item={item} />
           ))}
